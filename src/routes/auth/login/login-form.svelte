@@ -20,21 +20,21 @@
 		loading = true;
 		const result = event.result as FormResult<ActionData>;
 
-		if (result.status === 200) {
-			const email = result.data.form.data.email as string;
-			const password = result.data.form.data.password as string;
+		try {
+			if (result.status === 200) {
+				const email = result.data.form.data.email as string;
+				const password = result.data.form.data.password as string;
 
-			try {
 				await account.createEmailSession(email, password);
 				const user = await account.get();
 				currentUser.set(user);
 				const redirect = $page.url.searchParams.get('redirect') || '/';
 				await goto(redirect);
-			} catch (error) {
-				console.log(error);
-			} finally {
-				loading = false;
 			}
+		} catch (error) {
+			console.log(error);
+		} finally {
+			loading = false;
 		}
 	};
 </script>
