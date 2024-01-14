@@ -55,7 +55,7 @@
 				</div>
 			{:else} -->
 
-		<div class="grid grid-cols-2 gap-4">
+		<div class="grid gap-4 md:grid-cols-2">
 			{#each $organizations as organization}
 				<Card.Root class="mt-10 w-full">
 					<Card.Header>
