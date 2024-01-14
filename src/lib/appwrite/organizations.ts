@@ -16,11 +16,12 @@ export const createOrganization = async (data: CreateOrganization) => {
 export const listOrganizations = async () => {
 	const owner = await account.get();
 
-	return await database.listDocuments(
-		PUBLIC_APPWRITE_DATABASE_ID,
-		PUBLIC_ORGANIZATION_COLLECTION_ID,
-		[Query.equal('owner', owner.$id), Query.orderDesc('$createdAt')]
-	);
+	return (
+		await database.listDocuments(PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_ORGANIZATION_COLLECTION_ID, [
+			Query.equal('owner', owner.$id),
+			Query.orderDesc('$createdAt')
+		])
+	).documents;
 };
 
 export const deleteOrganization = async (id: string) => {

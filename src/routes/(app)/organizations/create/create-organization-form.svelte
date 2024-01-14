@@ -5,9 +5,10 @@
 	import type { FormResult } from 'sveltekit-superforms/client';
 	import type { ActionData } from '../$types';
 	import { Loader2 } from 'lucide-svelte';
-	import { createOrganization, type CreateOrganization } from '$lib/appwrite';
+	import { createOrganization, type CreateOrganization, listOrganizations } from '$lib/appwrite';
 	import { goto } from '$app/navigation';
 	import { AppwriteException } from 'appwrite';
+	import { organizations as organizationStore } from '$lib/stores/organization';
 
 	export let form: SuperValidated<OrganizationSchema>;
 
@@ -34,7 +35,9 @@
 				};
 
 				const organization = await createOrganization(dataToSend);
-				console.log(organization);
+				const orgs = await listOrganizations();
+				organizationStore.set(orgs);
+
 				await goto('/organizations');
 			}
 		} catch (e: any) {
