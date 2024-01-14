@@ -12,9 +12,6 @@
 
 	let loading = false;
 
-	let name = $currentUser?.name || '';
-	let email = $currentUser?.email || '';
-
 	const handleResult = async (event: any) => {
 		loading = true;
 		const result = event.result as FormResult<ActionData>;

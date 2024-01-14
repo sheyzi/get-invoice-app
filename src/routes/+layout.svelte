@@ -7,6 +7,7 @@
 	import { Loader } from '$lib/components/ui/loader';
 	import { navigating } from '$app/stores';
 	import { ModeWatcher } from 'mode-watcher';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	let fetching = true;
 
@@ -27,6 +28,7 @@
 	});
 </script>
 
+<Toaster />
 <ModeWatcher />
 
 {#if !!$navigating}

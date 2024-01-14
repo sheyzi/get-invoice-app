@@ -1,0 +1,37 @@
+import { z } from 'zod';
+
+const MAX_FILE_SIZE = 5000000;
+
+export const organizationSchema = z.object({
+	name: z
+		.string({ required_error: 'Organization name is required' })
+		.min(1, { message: 'Organization name is required' })
+		.max(255, { message: 'Organization name is too long' }),
+	logo: z
+		.any()
+		.refine((image) => image.size < MAX_FILE_SIZE, 'Image is too large')
+		.refine(
+			(image) => image.type.startsWith('image/'),
+			'Only .jpg, .jpeg, .png and .webp formats are supported.'
+		)
+		.optional(),
+	street: z.string().min(1, { message: 'Street is required' }),
+	city: z.string().min(1, { message: 'City is required' }),
+	state: z.string().min(1, { message: 'State is required' }),
+	zip: z.string().optional(),
+	country: z.string().min(1, { message: 'Country is required' }),
+	phone: z
+		.string()
+		.regex(/^\+[0-9]{8,15}$/, {
+			message: 'Phone number must be a valid international phone number'
+		})
+		.optional(),
+	website: z
+		.string()
+		.url({
+			message: 'Website must be a valid URL'
+		})
+		.optional()
+});
+
+export type OrganizationSchema = typeof organizationSchema;

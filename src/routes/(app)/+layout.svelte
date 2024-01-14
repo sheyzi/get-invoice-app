@@ -12,5 +12,9 @@
 <Navbar />
 
 <main class="container mt-16">
-	<slot />
+	<div
+		class="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col items-center justify-center"
+	>
+		<slot />
+	</div>
 </main>
