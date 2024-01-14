@@ -67,7 +67,7 @@
 	<Form.Field {config} name="logo">
 		<Form.Item class="md:col-span-2">
 			<Form.Label>Logo</Form.Label>
-			<Form.Input type="image" />
+			<Form.Input disabled type="image" />
 			<Form.Validation />
 		</Form.Item>
 	</Form.Field>
