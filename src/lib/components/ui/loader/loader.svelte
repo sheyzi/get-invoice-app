@@ -2,7 +2,7 @@
 	export let backgroundOpacity = 1;
 </script>
 
-<div class="fixed z-50 flex h-screen w-screen items-center justify-center">
+<div class="fixed z-50 flex h-screen w-screen items-center justify-center bg-background">
 	<!-- Overlay -->
 	<div
 		class="absolute left-0 top-0 h-screen w-screen"
