@@ -77,6 +77,7 @@
 						<Command.Group>
 							{#each $organizationsStore as organization}
 								<Command.Item
+									class="cursor-pointer"
 									value={organization.$id}
 									onSelect={(currentValue) => {
 										handleSelectOrganization(currentValue, ids.trigger);
@@ -84,7 +85,7 @@
 								>
 									<Check
 										class={cn(
-											'mr-2 h-4 w-4',
+											'mr-2 h-4 w-4 ',
 											activeOrganization !== organization.$id && 'text-transparent'
 										)}
 									/>
