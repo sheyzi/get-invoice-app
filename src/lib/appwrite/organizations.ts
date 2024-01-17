@@ -1,5 +1,5 @@
 import { account, database, ID, Query } from '$lib/appwrite';
-import type { CreateOrganization } from '$lib/appwrite/types';
+import type { CreateOrganization, UpdateOrganization } from '$lib/appwrite/types';
 import { PUBLIC_APPWRITE_DATABASE_ID, PUBLIC_ORGANIZATION_COLLECTION_ID } from '$env/static/public';
 
 export const createOrganization = async (data: CreateOrganization) => {
@@ -37,5 +37,14 @@ export const deleteOrganization = async (id: string) => {
 		PUBLIC_APPWRITE_DATABASE_ID,
 		PUBLIC_ORGANIZATION_COLLECTION_ID,
 		id
+	);
+};
+
+export const updateOrganization = async (id: string, data: UpdateOrganization) => {
+	return await database.updateDocument(
+		PUBLIC_APPWRITE_DATABASE_ID,
+		PUBLIC_ORGANIZATION_COLLECTION_ID,
+		id,
+		data
 	);
 };

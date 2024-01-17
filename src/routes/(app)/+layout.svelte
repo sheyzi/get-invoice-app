@@ -21,7 +21,6 @@
 			organizationsStore.set(orgs);
 			const activeOrg = await getActiveOrganization();
 			activeOrganizationStore.set(activeOrg ?? null);
-			console.log(activeOrg);
 		} catch (error) {
 			console.error(error);
 		} finally {

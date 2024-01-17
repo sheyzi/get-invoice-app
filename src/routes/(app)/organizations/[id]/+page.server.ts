@@ -1,7 +1,7 @@
-import { fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
-import { organizationSchema } from '../schema';
+import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
+import { organizationSchema } from '../schema';
+import type { Actions } from '@sveltejs/kit';
 
 export const load = (async () => {
 	return {

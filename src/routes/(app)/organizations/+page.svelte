@@ -92,9 +92,7 @@
 						<!-- Buttons to Edit, Delete -->
 
 						<div class="flex w-full items-center space-x-2">
-							<Button variant="outline" href={`/organizations/${organization.$id}/edit`}
-								>Edit</Button
-							>
+							<Button variant="outline" href={`/organizations/${organization.$id}`}>Edit</Button>
 
 							<Dialog.Root>
 								<Dialog.Trigger class={buttonVariants({ variant: 'destructive' })}

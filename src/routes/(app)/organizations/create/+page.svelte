@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import * as Card from '$lib/components/ui/card';
-	import CreateOrganizationForm from './create-organization-form.svelte';
+	import OrganizationForm from '../organization-form.svelte';
 
 	export let data: PageData;
 </script>
@@ -16,6 +16,6 @@
 		<Card.Description>Fill the form below to create a new organization</Card.Description>
 	</Card.Header>
 	<Card.Content>
-		<CreateOrganizationForm form={data.form} />
+		<OrganizationForm form={data.form} />
 	</Card.Content>
 </Card.Root>

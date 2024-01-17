@@ -1,3 +1,1 @@
-import type { CreateOrganization } from './organizations';
-
-export type { CreateOrganization };
+export * from './organizations';

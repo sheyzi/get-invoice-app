@@ -9,3 +9,7 @@ export interface CreateOrganization {
 	phone?: string;
 	website?: string;
 }
+
+export interface UpdateOrganization extends Partial<CreateOrganization> {
+	invoices?: string[];
+}

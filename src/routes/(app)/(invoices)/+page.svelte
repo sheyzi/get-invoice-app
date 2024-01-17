@@ -2,14 +2,15 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
 	import { organizationsStore, activeOrganizationStore } from '$lib/stores/organization';
-	import { setActiveOrganization } from '$lib/appwrite';
+	import { setActiveOrganization, createInvoice } from '$lib/appwrite';
 	import { Check, ChevronsUpDown } from 'lucide-svelte';
 	import * as Command from '$lib/components/ui/command';
 	import * as Popover from '$lib/components/ui/popover';
 	import { cn } from '$lib/utils';
-	import { tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { Loader2, Ban } from 'lucide-svelte';
 	import { Input } from '$lib/components/ui/input';
+	import type { Models } from 'appwrite';
 
 	let isPopoverOpen = false;
 
@@ -115,7 +116,19 @@
 			{#if switchingOrganizations}
 				<Loader2 class="animate-spin" />
 			{:else}
-				Table of invoices
+				{#each $activeOrganizationStore?.invoices as invoice}
+					{invoice.name}
+				{:else}
+					<div class="flex w-full flex-col items-center justify-center py-20 md:col-span-2">
+						<div class="relative pb-5 pt-10">
+							<Ban class="h-20 w-20 text-foreground md:h-36 md:w-36" />
+						</div>
+						<p class="text-center">
+							You don't have any invoices yet. Click the button above to create one.
+						</p>
+						<Button href="/invoices/create" class="mt-7">Create</Button>
+					</div>
+				{/each}
 			{/if}
 		</Card.Content>
 	{:else}
