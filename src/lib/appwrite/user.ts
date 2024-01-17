@@ -11,15 +11,25 @@ export const setActiveOrganization = async (organizationId: string | null) => {
 	}
 
 	try {
-		const organization = await getOrganization(organizationId);
+		if (organizationId === 'null') {
+			await account.updatePrefs({
+				activeOrganization: null
+			});
 
-		await account.updatePrefs({
-			activeOrganization: organizationId
-		});
+			activeOrganizationStore.set(null);
 
-		activeOrganizationStore.set(organization);
+			return null;
+		} else {
+			const organization = await getOrganization(organizationId);
 
-		return organization;
+			await account.updatePrefs({
+				activeOrganization: organizationId
+			});
+
+			activeOrganizationStore.set(organization);
+
+			return organization;
+		}
 	} catch (error) {
 		if (error instanceof AppwriteException && error.code === 404) {
 			toast.error('Organization not found');
@@ -33,7 +43,7 @@ export const setActiveOrganization = async (organizationId: string | null) => {
 export const getActiveOrganization = async (retries = 0): Promise<Models.Document | null> => {
 	const { prefs } = await account.get();
 
-	if (!prefs.activeOrganization) {
+	if (!prefs.activeOrganization || prefs.activeOrganization === 'null') {
 		const organizations = await listOrganizations();
 		if (organizations.length > 0) {
 			await setActiveOrganization(organizations[0].$id);
@@ -50,7 +60,8 @@ export const getActiveOrganization = async (retries = 0): Promise<Models.Documen
 		} catch (error) {
 			if (error instanceof AppwriteException && error.code === 404) {
 				if (retries < 1) {
-					await setActiveOrganization(null);
+					await setActiveOrganization('null');
+
 					return await getActiveOrganization(retries + 1);
 				} else {
 					return null;

@@ -12,4 +12,5 @@ export interface CreateOrganization {
 
 export interface UpdateOrganization extends Partial<CreateOrganization> {
 	invoices?: string[];
+	contacts?: string[];
 }

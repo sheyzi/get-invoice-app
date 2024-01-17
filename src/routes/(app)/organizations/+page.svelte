@@ -7,11 +7,15 @@
 	import { Loader2, Ban } from 'lucide-svelte';
 	import { organizationsStore, activeOrganizationStore } from '$lib/stores/organization';
 	import { toast } from 'svelte-sonner';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 
-	let loading = false;
+	let deleting = false;
+	let deleteDialogOpen = false;
 
-	const handleDelete = async (id: string) => {
-		loading = true;
+	const handleDelete = async (event: any, id: string) => {
+		event.preventDefault();
+
+		deleting = true;
 
 		try {
 			await deleteOrganization(id);
@@ -26,7 +30,8 @@
 			toast.error('Something went wrong. Please try again later.');
 			console.error(error);
 		} finally {
-			loading = false;
+			deleting = false;
+			deleteDialogOpen = false;
 		}
 	};
 </script>
@@ -94,36 +99,35 @@
 						<div class="flex w-full items-center space-x-2">
 							<Button variant="outline" href={`/organizations/${organization.$id}`}>Edit</Button>
 
-							<Dialog.Root>
-								<Dialog.Trigger class={buttonVariants({ variant: 'destructive' })}
-									>Delete</Dialog.Trigger
+							<AlertDialog.Root bind:open={deleteDialogOpen}>
+								<AlertDialog.Trigger class={buttonVariants({ variant: 'destructive' })}
+									>Delete</AlertDialog.Trigger
 								>
-
-								<Dialog.Content class="sm:max-w-[425px]">
-									<Dialog.Header>
-										<Dialog.Title>Delete {organization.name}</Dialog.Title>
-										<Dialog.Description>
-											Are you sure you want to delete this organization?
-										</Dialog.Description>
-									</Dialog.Header>
-									<div>
-										Deleting this organization will delete all the invoices associated with it.
-									</div>
-									<Dialog.Footer>
-										<Button
-											type="submit"
-											variant="destructive"
-											on:click={() => handleDelete(organization.$id)}
+								<AlertDialog.Content>
+									<AlertDialog.Header>
+										<AlertDialog.Title>
+											Are you sure you want to delete this organization?</AlertDialog.Title
 										>
-											{#if loading}
+										<AlertDialog.Description>
+											Deleting this organization cannot be undone. This will permanently delete this
+											organization and all invoice and contacts associated with it.
+										</AlertDialog.Description>
+									</AlertDialog.Header>
+									<AlertDialog.Footer>
+										<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+										<AlertDialog.Action
+											on:click={(e) => handleDelete(e, organization.$id)}
+											class={buttonVariants({ variant: 'destructive' })}
+										>
+											{#if deleting}
 												<Loader2 class="animate-spin" />
 											{:else}
 												Delete
 											{/if}
-										</Button>
-									</Dialog.Footer>
-								</Dialog.Content>
-							</Dialog.Root>
+										</AlertDialog.Action>
+									</AlertDialog.Footer>
+								</AlertDialog.Content>
+							</AlertDialog.Root>
 						</div>
 					</Card.Footer>
 				</Card.Root>

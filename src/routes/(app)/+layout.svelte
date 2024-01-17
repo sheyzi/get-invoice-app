@@ -38,7 +38,9 @@
 		{#if loading}
 			<Loader2 class="animate-spin" />
 		{:else}
-			<slot />
+			<div class="h-full w-full">
+				<slot />
+			</div>
 		{/if}
 	</div>
 </main>

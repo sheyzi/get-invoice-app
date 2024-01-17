@@ -3,17 +3,18 @@
 	import * as Form from '$lib/components/ui/form';
 	import { registerSchema, type RegisterSchema } from './schema';
 	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { FormResult } from 'sveltekit-superforms/client';
+
 	export let form: SuperValidated<RegisterSchema>;
-	import type { ActionData } from './$types';
+
 	import { currentUser } from '$lib/stores/user';
 	import { account } from '$lib/appwrite';
 	import { page } from '$app/stores';
 
 	import { Loader2 } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
 
 	const handleResult = async (event: any) => {
-		const result = event.result as FormResult<ActionData>;
+		const result = event.result as any;
 		try {
 			if (result.status === 200) {
 				const email = result.data.form.data.email as string;
@@ -27,6 +28,7 @@
 			}
 		} catch (error) {
 			console.log(error);
+			toast.error('Something went wrong. Please try again later.');
 		}
 	};
 </script>

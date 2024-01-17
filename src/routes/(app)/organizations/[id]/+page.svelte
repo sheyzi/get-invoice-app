@@ -2,10 +2,10 @@
 	import type { PageData } from './$types';
 	import { getOrganization } from '$lib/appwrite';
 	import { page } from '$app/stores';
-	import { Loader2, Plus } from 'lucide-svelte';
+	import { Loader2 } from 'lucide-svelte';
 	import OrganizationForm from '../organization-form.svelte';
 
-	import * as Card from '$lib/components/ui/card';
+	import { FormWrapper } from '$lib/components/ui/form-wrapper';
 
 	const getOrganizationData = async (id: string) => {
 		const organization = await getOrganization(id);
@@ -30,14 +30,10 @@
 		<Loader2 class="animate-spin" />
 	</div>
 {:then organization}
-	<Card.Root class="w-full">
-		<Card.Header>
-			<div class="flex w-full items-center justify-between">
-				<h1 class="text-2xl font-semibold">Edit {organization.name}</h1>
-			</div>
-		</Card.Header>
-		<Card.Content>
-			<OrganizationForm form={data.form} organizationToEdit={organization} />
-		</Card.Content>
-	</Card.Root>
+	<FormWrapper
+		title="Edit Organization"
+		description="Fill the form below to edit this organization"
+	>
+		<OrganizationForm form={data.form} organizationToEdit={organization} />
+	</FormWrapper>
 {/await}

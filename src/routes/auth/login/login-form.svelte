@@ -11,6 +11,8 @@
 	import { page } from '$app/stores';
 
 	import { Loader2 } from 'lucide-svelte';
+	import { toast } from 'svelte-sonner';
+	import { AppwriteException } from 'appwrite';
 
 	export let form: SuperValidated<LoginSchema>;
 
@@ -18,7 +20,7 @@
 
 	const handleResult = async (event: any) => {
 		loading = true;
-		const result = event.result as FormResult<ActionData>;
+		const result = event.result as any;
 
 		try {
 			if (result.status === 200) {
@@ -32,7 +34,12 @@
 				await goto(redirect);
 			}
 		} catch (error) {
+			if (error instanceof AppwriteException && error.code === 401) {
+				toast.error('Invalid email or password.');
+				return;
+			}
 			console.log(error);
+			toast.error('Something went wrong. Please try again later.');
 		} finally {
 			loading = false;
 		}

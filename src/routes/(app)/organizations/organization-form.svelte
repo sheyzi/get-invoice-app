@@ -9,7 +9,7 @@
 		type CreateOrganization,
 		listOrganizations,
 		setActiveOrganization,
-		UpdateOrganization
+		updateOrganization
 	} from '$lib/appwrite';
 	import { goto } from '$app/navigation';
 	import { AppwriteException, type Models } from 'appwrite';
@@ -18,6 +18,7 @@
 		activeOrganizationStore
 	} from '$lib/stores/organization';
 	import { toast } from 'svelte-sonner';
+	import { page } from '$app/stores';
 
 	export let form: SuperValidated<OrganizationSchema>;
 	export let organizationToEdit: Models.Document | null = null;
@@ -54,8 +55,6 @@
 					}
 
 					toast.success('Organization created successfully');
-
-					await goto('/organizations');
 				} else {
 					let dataToSend: CreateOrganization = {
 						name: result.data.form.data.name as string,
@@ -80,9 +79,10 @@
 					}
 
 					toast.success('Organization updated successfully');
-
-					await goto('/organizations');
 				}
+
+				const redirect = $page.url.searchParams.get('redirect') || '/organizations';
+				await goto(redirect);
 			}
 		} catch (e: any) {
 			toast.error('Something went wrong. Please try again later.');
@@ -114,7 +114,7 @@
 
 	<Form.Field {config} name="name">
 		<Form.Item>
-			<Form.Label>Organization Name <span class="text-destructive">*</span></Form.Label>
+			<Form.Label required>Organization Name</Form.Label>
 			<Form.Input initialValue={organizationToEdit?.name ?? ''} placeholder="Get Invoice" />
 			<Form.Validation />
 		</Form.Item>
@@ -122,7 +122,7 @@
 
 	<Form.Field {config} name="street">
 		<Form.Item>
-			<Form.Label>Street <span class="text-destructive">*</span></Form.Label>
+			<Form.Label required>Street</Form.Label>
 			<Form.Input initialValue={organizationToEdit?.street ?? ''} placeholder="1234 Main St" />
 			<Form.Validation />
 		</Form.Item>
@@ -130,7 +130,7 @@
 
 	<Form.Field {config} name="city">
 		<Form.Item>
-			<Form.Label>City <span class="text-destructive">*</span></Form.Label>
+			<Form.Label required>City</Form.Label>
 			<Form.Input initialValue={organizationToEdit?.city ?? ''} placeholder="Ikeja" />
 			<Form.Validation />
 		</Form.Item>
@@ -138,7 +138,7 @@
 
 	<Form.Field {config} name="state">
 		<Form.Item>
-			<Form.Label>State <span class="text-destructive">*</span></Form.Label>
+			<Form.Label required>State</Form.Label>
 			<Form.Input initialValue={organizationToEdit?.state ?? ''} placeholder="Lagos" />
 			<Form.Validation />
 		</Form.Item>
@@ -154,7 +154,7 @@
 
 	<Form.Field {config} name="country">
 		<Form.Item>
-			<Form.Label>Country <span class="text-destructive">*</span></Form.Label>
+			<Form.Label required>Country</Form.Label>
 			<Form.Input initialValue={organizationToEdit?.country ?? ''} placeholder="Nigeria" />
 			<Form.Validation />
 		</Form.Item>
