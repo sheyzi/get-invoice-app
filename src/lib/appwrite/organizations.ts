@@ -24,6 +24,14 @@ export const listOrganizations = async () => {
 	).documents;
 };
 
+export const getOrganization = async (id: string) => {
+	return await database.getDocument(
+		PUBLIC_APPWRITE_DATABASE_ID,
+		PUBLIC_ORGANIZATION_COLLECTION_ID,
+		id
+	);
+};
+
 export const deleteOrganization = async (id: string) => {
 	return await database.deleteDocument(
 		PUBLIC_APPWRITE_DATABASE_ID,

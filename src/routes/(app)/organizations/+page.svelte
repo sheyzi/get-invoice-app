@@ -1,13 +1,11 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import { Plus } from 'lucide-svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Card from '$lib/components/ui/card';
 	import { listOrganizations, deleteOrganization } from '$lib/appwrite';
-	import { Loader2 } from 'lucide-svelte';
-	import { AppwriteException } from 'appwrite';
-	import { organizations } from '$lib/stores/organization';
+	import { Loader2, Ban } from 'lucide-svelte';
+	import { organizationsStore, activeOrganizationStore } from '$lib/stores/organization';
 	import { toast } from 'svelte-sonner';
 
 	let loading = false;
@@ -17,9 +15,13 @@
 
 		try {
 			await deleteOrganization(id);
-			toast.success('Organization deleted successfully');
 			const orgs = await listOrganizations();
-			organizations.set(orgs);
+			organizationsStore.set(orgs);
+
+			if (orgs.length === 0) {
+				activeOrganizationStore.set(null);
+			}
+			toast.success('Organization deleted successfully');
 		} catch (error) {
 			toast.error('Something went wrong. Please try again later.');
 			console.error(error);
@@ -56,7 +58,7 @@
 			{:else} -->
 
 		<div class="grid gap-4 md:grid-cols-2">
-			{#each $organizations as organization}
+			{#each $organizationsStore as organization}
 				<Card.Root class="mt-10 w-full">
 					<Card.Header>
 						<div class="flex items-center">
@@ -127,6 +129,15 @@
 						</div>
 					</Card.Footer>
 				</Card.Root>
+			{:else}
+				<div class="flex flex-col w-full items-center justify-center md:col-span-2 py-20">
+					<div class="relative py-10">
+						<Ban class="h-20 w-20 text-foreground md:h-36 md:w-36" />
+					</div>
+					<p class="text-center">
+						You don't have any organizations yet. Click the button above to create one.
+					</p>
+				</div>
 			{/each}
 		</div>
 		<!-- {/if} -->

@@ -4,8 +4,8 @@
 	import { page } from '$app/stores';
 	import { Navbar } from '$lib/components/ui/navbar';
 	import { onMount } from 'svelte';
-	import { listOrganizations } from '$lib/appwrite';
-	import { organizations } from '$lib/stores/organization';
+	import { listOrganizations, getActiveOrganization } from '$lib/appwrite';
+	import { organizationsStore, activeOrganizationStore } from '$lib/stores/organization';
 	import { Loader2 } from 'lucide-svelte';
 
 	$: if (!$currentUser) {
@@ -18,7 +18,10 @@
 		loading = true;
 		try {
 			const orgs = await listOrganizations();
-			organizations.set(orgs);
+			organizationsStore.set(orgs);
+			const activeOrg = await getActiveOrganization();
+			activeOrganizationStore.set(activeOrg ?? null);
+			console.log(activeOrg);
 		} catch (error) {
 			console.error(error);
 		} finally {
@@ -31,7 +34,7 @@
 
 <main class="container mt-16">
 	<div
-		class="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col items-center justify-center"
+		class="mx-auto mt-32 flex h-full min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col items-center justify-start"
 	>
 		{#if loading}
 			<Loader2 class="animate-spin" />

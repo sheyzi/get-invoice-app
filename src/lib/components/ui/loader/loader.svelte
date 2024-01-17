@@ -10,6 +10,6 @@
 	></div>
 
 	<div
-		class="z-10 h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-gray-900 dark:border-white"
+		class="z-10 h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-foreground"
 	></div>
 </div>

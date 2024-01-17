@@ -5,19 +5,23 @@
 	import type { FormResult } from 'sveltekit-superforms/client';
 	import type { ActionData } from '../$types';
 	import { Loader2 } from 'lucide-svelte';
-	import { createOrganization, type CreateOrganization, listOrganizations } from '$lib/appwrite';
+	import {
+		createOrganization,
+		type CreateOrganization,
+		listOrganizations,
+		setActiveOrganization
+	} from '$lib/appwrite';
 	import { goto } from '$app/navigation';
 	import { AppwriteException } from 'appwrite';
-	import { organizations as organizationStore } from '$lib/stores/organization';
+	import { organizationsStore as organizationStore } from '$lib/stores/organization';
+	import { toast } from 'svelte-sonner';
 
 	export let form: SuperValidated<OrganizationSchema>;
 
 	let loading = false;
-	let error: string | null = null;
 
 	const handleResult = async (event: any) => {
 		loading = true;
-		error = null;
 		const result = event.result as FormResult<ActionData>;
 
 		try {
@@ -35,16 +39,24 @@
 				};
 
 				const organization = await createOrganization(dataToSend);
+
 				const orgs = await listOrganizations();
+
 				organizationStore.set(orgs);
+
+				if (orgs.length === 1) {
+					await setActiveOrganization(organization.$id);
+				}
 
 				await goto('/organizations');
 			}
 		} catch (e: any) {
+			console.log({ ...e });
 			if (e instanceof AppwriteException) {
-				error = e.message;
+				console.log(e.code, e.message);
+				toast.error(e.message);
 			} else {
-				error = 'An error occurred. Please try again later.';
+				toast.error('Something went wrong. Please try again later.');
 			}
 		} finally {
 			loading = false;
@@ -142,12 +154,6 @@
 	{#if message}
 		<div class="col-span-2 mt-3 rounded-sm bg-destructive/20 p-3">
 			<p class="text-destructive">{message}</p>
-		</div>
-	{/if}
-
-	{#if error}
-		<div class="col-span-2 mt-3 rounded-sm bg-destructive/20 p-3">
-			<p class="text-destructive">{error}</p>
 		</div>
 	{/if}
 

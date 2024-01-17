@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
 import { type Models } from 'appwrite';
 
-export const organizations = writable<Models.Document[]>([]);
-export const selectedOrganization = writable(null);
+export const organizationsStore = writable<Models.Document[]>([]);
+export const activeOrganizationStore = writable<Models.Document | null>(null);
