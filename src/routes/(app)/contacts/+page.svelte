@@ -112,4 +112,8 @@
 			</Table.Body>
 		</Table.Root>
 	{/if}
+
+	<div slot="empty-state-icon">
+		<img src="/no-records.svg" alt="" class="h-full w-full" />
+	</div>
 </OrganizationChildCard>

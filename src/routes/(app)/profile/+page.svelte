@@ -11,7 +11,7 @@
 	<title>Profile - Get Invoice</title>
 </svelte:head>
 
-<div class="w-full max-w-[650px]">
+<div class="mx-auto w-full max-w-[650px]">
 	<Card.Root class="w-full">
 		<Card.Header>
 			<Card.Title tag="h2" class="text-2xl">Edit Profile</Card.Title>

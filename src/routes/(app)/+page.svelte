@@ -5,7 +5,8 @@
 
 	import { Loader2, Ban } from 'lucide-svelte';
 	import { ActiveOrg } from '$lib/components/ui/active-org';
-	import OrganizationChildCard from '../../lib/components/ui/organization-child-card/organization-child-card.svelte';
+	import OrganizationChildCard from '$lib/components/ui/organization-child-card/organization-child-card.svelte';
+
 	let switchingOrganizations = false;
 
 	$: showEmptyState = $activeOrganizationStore?.invoices.length === 0;
@@ -18,10 +19,11 @@
 <ActiveOrg bind:switchingOrganizations />
 
 <OrganizationChildCard
+	bind:showEmptyState
 	name="invoice"
 	bind:switchingOrganizations
 	createUrl="/invoices/create"
-	bind:showEmptyState
+	watchContact={true}
 >
 	Content Here
 </OrganizationChildCard>

@@ -31,7 +31,7 @@
 
 <Navbar />
 
-<main class="container mt-16">
+<main class="container mt-16 px-5 md:px-10">
 	<div
 		class="mx-auto mt-32 flex h-full min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col items-center justify-start"
 	>
