@@ -9,8 +9,6 @@
 	import ContactTableActions from './contact-table-actions.svelte';
 	import type { Contact } from '../../../lib/appwrite';
 
-	export let data: PageData;
-
 	let switchingOrganizations = false;
 	$: showEmptyState = $activeOrganizationStore?.contacts.length === 0;
 
