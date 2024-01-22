@@ -29,6 +29,7 @@
 	import { invoiceSchema } from './schema';
 	import { z } from 'zod';
 	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
 	let switchingOrganizations = false;
 	let selectedContact: Contact | null = null;
@@ -153,10 +154,11 @@
 					};
 
 					if (selectedContact) {
-						await createInvoice(dataToSend, selectedContact.$id);
+						const invoice = await createInvoice(dataToSend, selectedContact.$id);
 						const activeOrganization = await getActiveOrganization();
 						activeOrganizationStore.set(activeOrganization);
 						toast.success('Invoice created successfully.');
+						await goto(`/invoice/${invoice.$id}`);
 					} else {
 						toast.error('Please select a contact to continue.');
 					}

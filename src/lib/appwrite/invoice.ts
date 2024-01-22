@@ -48,6 +48,14 @@ export const createInvoice = async (data: CreateInvoice, contact_id: string) => 
 	}
 };
 
+export const getInvoice = async (invoice_id: string) => {
+	return await database.getDocument(
+		PUBLIC_APPWRITE_DATABASE_ID,
+		PUBLIC_INVOICE_COLLECTION_ID,
+		invoice_id
+	);
+};
+
 export const deleteInvoice = async (invoice_id: string) => {
 	return await database.deleteDocument(
 		PUBLIC_APPWRITE_DATABASE_ID,
