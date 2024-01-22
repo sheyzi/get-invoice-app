@@ -26,7 +26,7 @@
 	<Loader />
 {/if}
 
-<div class="fixed top-0 w-screen border-b-2 bg-background py-2">
+<div class="fixed top-0 z-50 w-screen border-b-2 bg-background py-2">
 	<div class="container flex items-center justify-between">
 		<div>
 			<Button href="/" variant="link" size="no-padding" class="text-xl font-semibold"

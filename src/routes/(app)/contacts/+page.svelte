@@ -1,13 +1,13 @@
 <script lang="ts">
 	import ActiveOrg from '$lib/components/ui/active-org/active-org.svelte';
 	import { activeOrganizationStore } from '$lib/stores/organization';
-	import OrganizationChildCard from '../../../lib/components/ui/organization-child-card/organization-child-card.svelte';
-	import type { PageData } from './$types';
+	import OrganizationChildCard from '$lib/components/ui/organization-child-card/organization-child-card.svelte';
+
 	import { createTable, Render, Subscribe, createRender } from 'svelte-headless-table';
 	import { readable } from 'svelte/store';
 	import * as Table from '$lib/components/ui/table';
 	import ContactTableActions from './contact-table-actions.svelte';
-	import type { Contact } from '../../../lib/appwrite';
+	import type { Contact } from '$lib/appwrite';
 
 	let switchingOrganizations = false;
 	$: showEmptyState = $activeOrganizationStore?.contacts.length === 0;

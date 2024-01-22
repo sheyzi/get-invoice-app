@@ -1,6 +1,7 @@
 export interface CreateOrganization {
 	name: string;
 	logo?: string;
+	email: string;
 	street: string;
 	city: string;
 	state: string;

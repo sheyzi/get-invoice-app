@@ -15,6 +15,7 @@ export const organizationSchema = z.object({
 			'Only .jpg, .jpeg, .png and .webp formats are supported.'
 		)
 		.optional(),
+	email: z.string().email({ message: 'Email must be a valid email address' }),
 	street: z.string().min(1, { message: 'Street is required' }),
 	city: z.string().min(1, { message: 'City is required' }),
 	state: z.string().min(1, { message: 'State is required' }),

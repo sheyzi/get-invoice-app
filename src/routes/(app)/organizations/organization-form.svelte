@@ -35,6 +35,7 @@
 					let dataToSend: CreateOrganization = {
 						name: result.data.form.data.name as string,
 						logo: '',
+						email: result.data.form.data.email as string,
 						street: result.data.form.data.street as string,
 						city: result.data.form.data.city as string,
 						state: result.data.form.data.state as string,
@@ -59,6 +60,7 @@
 					let dataToSend: CreateOrganization = {
 						name: result.data.form.data.name as string,
 						logo: '',
+						email: result.data.form.data.email as string,
 						street: result.data.form.data.street as string,
 						city: result.data.form.data.city as string,
 						state: result.data.form.data.state as string,
@@ -102,10 +104,10 @@
 	options={{
 		onResult: handleResult
 	}}
-	class="grid grid-cols-1 gap-4 space-y-4 md:grid-cols-2"
+	class="grid grid-cols-1 gap-4  md:grid-cols-2"
 >
 	<Form.Field {config} name="logo">
-		<Form.Item class="md:col-span-2">
+		<Form.Item class="">
 			<Form.Label>Logo</Form.Label>
 			<Form.Input disabled type="image" />
 			<Form.Validation />
@@ -116,6 +118,18 @@
 		<Form.Item>
 			<Form.Label required>Organization Name</Form.Label>
 			<Form.Input initialValue={organizationToEdit?.name ?? ''} placeholder="Get Invoice" />
+			<Form.Validation />
+		</Form.Item>
+	</Form.Field>
+
+	<Form.Field {config} name="email">
+		<Form.Item>
+			<Form.Label required>Email</Form.Label>
+			<Form.Input
+				initialValue={organizationToEdit?.email ?? ''}
+				type="email"
+				placeholder="johndoe@company.com"
+			/>
 			<Form.Validation />
 		</Form.Item>
 	</Form.Field>

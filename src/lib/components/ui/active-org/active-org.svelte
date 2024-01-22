@@ -14,6 +14,9 @@
 	let isPopoverOpen = false;
 
 	export let switchingOrganizations: boolean;
+	export let fullWidth: boolean = true;
+	export let isVertical: boolean = false;
+	export let required: boolean = false;
 
 	$: activeOrganization = $activeOrganizationStore?.$id;
 	$: activeOrganizationName = $activeOrganizationStore?.name ?? 'No active organization';
@@ -39,11 +42,20 @@
 </script>
 
 <div class="flex w-full items-center justify-between px-1 pb-5">
-	<div class="hidden md:flex">
+	<div class="hidden md:flex" class:hidden={!fullWidth}>
 		<!-- <Input placeholder="Search..." /> -->
 	</div>
-	<div class="flex w-full items-center justify-between md:w-fit">
-		<div class="mr-2 text-sm font-semibold">Active Org:</div>
+	<div
+		class="flex w-full md:w-fit {isVertical
+			? 'items-center justify-between space-y-2 md:flex-col md:items-start md:justify-start'
+			: 'items-center justify-between'}"
+	>
+		<div class:mr-2={!isVertical} class=" flex space-x-2 text-sm font-semibold">
+			<div>Active Org:</div>
+			{#if required}
+				<span class="text-destructive">*</span>
+			{/if}
+		</div>
 		<div>
 			<Popover.Root bind:open={isPopoverOpen} let:ids>
 				<Popover.Trigger asChild let:builder>
