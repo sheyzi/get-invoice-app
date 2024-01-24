@@ -16,18 +16,9 @@
 	$: invoice = getInvoiceData();
 
 	const printInvoice = async () => {
-		console.log('Generating invoice');
-		let themeMode = $mode;
-		let copiedMode = themeMode;
-
-		if ($mode === 'dark') {
-			await setMode('light');
-		}
-
 		let printContent = document.getElementById('printTemplate');
 
 		if (printContent) {
-			printContent.classList.remove('hidden');
 			const options = {
 				margin: 0.5,
 				filename: `${(await invoice).title}.pdf`,
@@ -35,9 +26,7 @@
 				html2canvas: { scale: 2 },
 				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
 			};
-			html2pdf().from(printContent).set(options).save();
-
-			setMode(copiedMode || 'light');
+			await html2pdf().from(printContent).set(options).save();
 		}
 	};
 </script>
@@ -55,73 +44,39 @@
 		<Loader2 class="animate-spin" />
 	</div>
 {:then invoice}
-	<div class="hidden h-full w-full bg-background" id="printTemplate">
-		<div class="flex items-center justify-between">
-			<h3 class="text-3xl font-semibold">INVOICE</h3>
+	<div class=" h-full w-full bg-background" id="printTemplate">
+		<div class="flex items-start justify-between">
+			<div>
+				<h3 class="text-3xl font-semibold">
+					{invoice.organization.name}
+				</h3>
+				<p class="text-sm text-muted-foreground">
+					{invoice.organization.email}
+				</p>
+				<p class="text-sm text-muted-foreground">
+					{invoice.organization.street}, {invoice.organization.city}, {invoice.organization
+						.state},{' '}
+					{invoice.organization.country}
+					{#if invoice.organization.zip}, {invoice.organization.zip}{/if}.
+				</p>
+				{#if invoice.organization.phone}
+					<p class="text-sm text-muted-foreground">
+						{invoice.organization.phone}
+					</p>
+				{/if}
+				{#if invoice.organization.vat_id}
+					<p class="text-sm text-muted-foreground">
+						VAT-{invoice.organization.vat_id}
+					</p>
+				{/if}
+			</div>
 
-			<p class="text-3xl font-bold">
-				#{invoice.invoice_prefix}{invoice.invoice_no}
-			</p>
+			<p class="text-3xl font-bold">INVOICE</p>
 		</div>
 
-		<div class="mt-20 space-y-4">
-			<div class="mb-1 flex items-center">
-				<p class="block w-32 font-bold uppercase tracking-wide">Date</p>
-				<span class="mr-4 inline-block">:</span>
-				<p>
-					{new Date(invoice.date).toLocaleDateString('en-US', {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					})}
-				</p>
-			</div>
-			<div class="mb-1 flex items-center">
-				<p class="block w-32 font-bold uppercase tracking-wide">Due Date</p>
-				<span class="mr-4 inline-block">:</span>
-				<p>
-					{new Date(invoice.due_date).toLocaleDateString('en-US', {
-						year: 'numeric',
-						month: 'long',
-						day: 'numeric'
-					})}
-				</p>
-			</div>
-		</div>
-
-		<div class="mt-16 flex h-full w-full justify-between gap-x-8 gap-y-4">
+		<div class="mt-16 flex h-full w-full items-start justify-between gap-x-8 gap-y-4">
 			<div class="space-y-4">
-				<h3 class="font-semibold">FROM:</h3>
-
-				<div class=" space-y-4">
-					<p>
-						{invoice.organization.name}
-					</p>
-					<p>
-						{invoice.organization.email}
-					</p>
-
-					<p>
-						{invoice.organization.street}, {invoice.organization.city}, {invoice.organization
-							.state}, {invoice.organization.country}{#if invoice.organization.zip}, {invoice
-								.organization.zip}{/if}.
-					</p>
-
-					{#if invoice.organization.phone}
-						<p>
-							{invoice.organization.phone}
-						</p>
-					{/if}
-
-					{#if invoice.organization.vat_id}
-						<p>
-							VAT-{invoice.organization.vat_id}
-						</p>
-					{/if}
-				</div>
-			</div>
-			<div class="space-y-4">
-				<h3 class="font-semibold">To:</h3>
+				<h3 class="font-semibold">Bill To:</h3>
 
 				<div class=" space-y-4">
 					<p>
@@ -146,6 +101,38 @@
 							VAT-{invoice.contact.vat_id}
 						</p>
 					{/if}
+				</div>
+			</div>
+
+			<div class="space-y-4">
+				<div class="mb-1 flex items-center">
+					<p class="block w-32 font-bold uppercase tracking-wide">Invoice #</p>
+					<span class="mr-4 inline-block">:</span>
+					<p>
+						{invoice.invoice_prefix}{invoice.invoice_no}
+					</p>
+				</div>
+				<div class="mb-1 flex items-center">
+					<p class="block w-32 font-bold uppercase tracking-wide">Date</p>
+					<span class="mr-4 inline-block">:</span>
+					<p>
+						{new Date(invoice.date).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						})}
+					</p>
+				</div>
+				<div class="mb-1 flex items-center">
+					<p class="block w-32 font-bold uppercase tracking-wide">Due Date</p>
+					<span class="mr-4 inline-block">:</span>
+					<p>
+						{new Date(invoice.due_date).toLocaleDateString('en-US', {
+							year: 'numeric',
+							month: 'long',
+							day: 'numeric'
+						})}
+					</p>
 				</div>
 			</div>
 		</div>
@@ -263,7 +250,7 @@
 		{/if}
 	</div>
 
-	<div class=" h-full w-full">
+	<!-- <div class=" h-full w-full">
 		<div class="flex items-center justify-between">
 			<h3 class="text-xl font-semibold md:text-3xl">INVOICE</h3>
 
@@ -469,6 +456,6 @@
 				</p>
 			</div>
 		{/if}
-		<Button on:click={printInvoice}>Download Invoice</Button>
-	</div>
+	</div> -->
+	<Button on:click={printInvoice}>Download Invoice</Button>
 {/await}
