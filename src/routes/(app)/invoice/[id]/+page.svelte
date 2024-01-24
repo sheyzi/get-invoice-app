@@ -17,6 +17,8 @@
 
 	const printInvoice = async () => {
 		let printContent = document.getElementById('printTemplate');
+		let originalContent = document.body.innerHTML;
+		document.body.innerHTML = printContent?.innerHTML || '';
 
 		if (printContent) {
 			const options = {
@@ -26,7 +28,9 @@
 				html2canvas: { scale: 2 },
 				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
 			};
-			await html2pdf().from(printContent).set(options).save();
+			await html2pdf().from(document.body).set(options).save();
+
+			document.body.innerHTML = originalContent;
 		}
 	};
 </script>
