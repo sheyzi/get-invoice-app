@@ -1,12 +1,46 @@
+<script lang="ts">
+	import { formatCurrency } from '$lib/utils';
+	import { onMount } from 'svelte';
+
+	export let invoice: any;
+
+	let subTotal = 0;
+	let tax = 0;
+	let discount = 0;
+	let total = 0;
+
+	onMount(() => {
+		invoice.items.forEach((item) => {
+			subTotal += item.quantity * item.unit_price;
+			tax += item.is_taxable ? item.quantity * item.unit_price * (invoice.tax_rate / 100) : 0;
+			discount += item.quantity * item.unit_price * (invoice.discount / 100);
+		});
+		total = subTotal + tax - discount;
+	});
+</script>
+
 <div class="body hidden" id="invoice-print-template">
 	<div class="header">
 		<div class="header-left">
-			<h1 class="company-name">Company Name</h1>
+			<h1 class="company-name">{invoice.organization.name}</h1>
 			<div class="company-details">
-				<p>sheyzi@mafflle.com.ng</p>
-				<p>24 Fadeyi Street, Lagos, Lagos, Nigeria , 101245.</p>
-				<p>+22959153295</p>
-				<p>VAT-55452245221</p>
+				<p>{invoice.organization.email}</p>
+				<p>
+					{invoice.organization.street}, {invoice.organization.city}, {invoice.organization
+						.state},{' '}
+					{invoice.organization.country}
+					{#if invoice.organization.zip}, {invoice.organization.zip}{/if}.
+				</p>
+				{#if invoice.organization.phone}
+					<p>
+						{invoice.organization.phone}
+					</p>
+				{/if}
+				{#if invoice.organization.vat_id}
+					<p>
+						VAT-{invoice.organization.vat_id}
+					</p>
+				{/if}
 			</div>
 		</div>
 
@@ -19,11 +53,13 @@
 		<div>
 			<h3 style="margin-bottom: 5px">Bill To:</h3>
 			<div class="contact-details">
-				<p>Client Name</p>
-				<p>client@invoice.com</p>
-				<p>24 Fadeyi Street, Lagos, Lagos, Nigeria , 101245.</p>
-				<p>+22959153295</p>
-				<p>VAT-55452245221</p>
+				<p>{invoice.contact.name}</p>
+				<p>{invoice.contact.email}</p>
+				<p>{invoice.contact.address}</p>
+				<p>{invoice.contact.phone}</p>
+				{#if invoice.contact.vat_id}
+					<p>VAT-{invoice.contact.vat_id}</p>
+				{/if}
 			</div>
 		</div>
 
@@ -31,19 +67,33 @@
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Invoice No</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>INV-0001</p>
+				<p>
+					{invoice.invoice_prefix}{invoice.invoice_no}
+				</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Invoice Date</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>01/01/2021</p>
+				<p>
+					{new Date(invoice.date).toLocaleDateString('en-US', {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					})}
+				</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Due Date</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>01/01/2021</p>
+				<p>
+					{new Date(invoice.due_date).toLocaleDateString('en-US', {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric'
+					})}
+				</p>
 			</div>
 		</div>
 	</div>
@@ -61,17 +111,42 @@
 		</thead>
 
 		<tbody>
-			<tr>
-				<td>
-					<p class="item-name">Item Name</p>
-					<p class="item-description">Item Description</p>
-				</td>
-				<td>1</td>
-				<td>$1,000.00</td>
-				<td>$100.00</td>
-				<td>-$100.00</td>
-				<td>$1,000.00</td>
-			</tr>
+			{#each invoice.items as item}
+				<tr>
+					<td>
+						<p class="item-name">{item.name}</p>
+						<p class="item-description">{item.description}</p>
+					</td>
+					<td>{item.quantity}</td>
+					<td>{formatCurrency(item.unit_price)}</td>
+					<td>
+						{#if item.is_taxable}
+							{formatCurrency(item.quantity * item.unit_price * (invoice.tax_rate / 100))}
+						{:else}
+							0
+						{/if}
+					</td>
+					<td>
+						{discount > 0 ? '-' : ''}{formatCurrency(
+							item.quantity * item.unit_price * (invoice.discount / 100)
+						)}
+					</td>
+					<td>
+						{#if item.is_taxable}
+							{formatCurrency(
+								item.quantity * item.unit_price +
+									item.quantity * item.unit_price * (invoice.tax_rate / 100) -
+									item.quantity * item.unit_price * (invoice.discount / 100)
+							)}
+						{:else}
+							{formatCurrency(
+								item.quantity * item.unit_price -
+									item.quantity * item.unit_price * (invoice.discount / 100)
+							)}
+						{/if}
+					</td>
+				</tr>
+			{/each}
 		</tbody>
 	</table>
 
@@ -82,37 +157,36 @@
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Sub Total</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>$1,000.00</p>
+				<p>{formatCurrency(subTotal)}</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Tax</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>$100.00</p>
+				<p>{formatCurrency(tax)}</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Discount</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>-$100.00</p>
+				<p>{discount > 0 ? '-' : ''}{formatCurrency(discount)}</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Total</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>$1,000.00</p>
+				<p>{formatCurrency(total)}</p>
 			</div>
 		</div>
 	</div>
 
-	<div class="flex" style="margin-top: 4rem">
-		<p class="note">
-			Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam voluptatum, quibusdam, quia,
-			voluptates voluptatem quod quos exercitationem quas voluptate quidem dolorum. Quisquam
-			voluptatum, quibusdam, quia, voluptates voluptatem quod quos exercitationem quas voluptate
-			quidem dolorum.
-		</p>
-	</div>
+	{#if invoice.note}
+		<div class="flex" style="margin-top: 4rem">
+			<p class="note">
+				{invoice.note}
+			</p>
+		</div>
+	{/if}
 </div>
 
 <style>

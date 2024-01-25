@@ -60,7 +60,7 @@
 	</div>
 {:then invoice}
 	<div class=" h-full w-full bg-background" id="printTemplate">
-		<div class="flex items-start justify-between">
+		<div class="items-start justify-between md:flex">
 			<div>
 				<h3 class="text-3xl font-semibold">
 					{invoice.organization.name}
@@ -86,10 +86,12 @@
 				{/if}
 			</div>
 
-			<p class="text-3xl font-bold">INVOICE</p>
+			<p class="hidden text-3xl font-bold md:block">INVOICE</p>
 		</div>
 
-		<div class="mt-16 flex h-full w-full items-start justify-between gap-x-8 gap-y-4">
+		<div
+			class="mt-10 flex h-full w-full flex-col-reverse items-start justify-between gap-x-8 gap-y-8 md:mt-16 md:flex-row"
+		>
 			<div class="space-y-4">
 				<h3 class="font-semibold">Bill To:</h3>
 
@@ -260,7 +262,7 @@
 		{/if}
 	</div>
 
-	<PrintInvoice />
+	<PrintInvoice {invoice} />
 
 	<div class="flex items-center space-x-4">
 		<Button href="/invoice/{$page.params.id}/edit">Edit Invoice</Button>
