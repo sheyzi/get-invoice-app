@@ -12,13 +12,11 @@
 	import * as Card from '$lib/components/ui/card';
 
 	import { ActiveOrg } from '$lib/components/ui/active-org';
-	import { Check, ChevronsUpDown, Loader2, Plus, Trash } from 'lucide-svelte';
+	import { Check, ChevronsUpDown, Loader2, Plus, Trash, XCircle, Pen } from 'lucide-svelte';
 	import { activeOrganizationStore } from '$lib/stores/organization';
 
 	import {
 		createInvoice,
-		type ContactBase,
-		type CreateContact,
 		type CreateInvoice,
 		type Contact,
 		getActiveOrganization
@@ -26,7 +24,7 @@
 	import { page } from '$app/stores';
 	import { cn, formatCurrency } from '$lib/utils';
 	import { tick } from 'svelte';
-	import { invoiceSchema } from './schema';
+	import { invoiceSchema, itemSchema } from './schema';
 	import { z } from 'zod';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
@@ -56,7 +54,8 @@
 		items: [],
 		notes: '',
 		tax_rate: 10,
-		currency_symbol: '₦'
+		currency_symbol: '₦',
+		discount: 0
 	};
 
 	$: if (selectedContact) {
@@ -88,6 +87,16 @@
 	}
 
 	$: {
+		formData.discount = isNaN(Number(formData.discount)) ? 0 : Number(formData.discount);
+
+		if (formData.discount > 100) {
+			formData.discount = 100;
+		} else if (formData.discount < 0) {
+			formData.discount = 0;
+		}
+	}
+
+	$: {
 		if (formData.items.length) {
 			formData.items = formData.items.map((item: any) => {
 				item.quantity = isNaN(Number(item.quantity))
@@ -100,6 +109,28 @@
 			});
 		}
 	}
+
+	$: subtotal = formData.items.reduce((acc: number, item: any) => {
+		if (item.unit_price) {
+			return acc + item.quantity * item.unit_price;
+		} else {
+			return acc;
+		}
+	}, 0);
+
+	$: tax = formData.items.reduce((acc: number, item: any) => {
+		return (
+			acc + (item.is_taxable ? item.quantity * item.unit_price * (formData.tax_rate / 100) : 0)
+		);
+	}, 0);
+
+	$: discount = formData.items.reduce((acc: number, item: any) => {
+		return acc + item.quantity * item.unit_price * (formData.discount / 100);
+	}, 0);
+
+	$: total = formData.items.reduce((acc: number, item: any) => {
+		return acc + item.quantity * item.unit_price + tax - discount;
+	}, 0);
 
 	const selectContact = (value: any) => {
 		selectedContact = $activeOrganizationStore?.contacts.find(
@@ -150,7 +181,8 @@
 						items: formData.items,
 						notes: formData.notes,
 						invoice_prefix: formData.invoice_prefix,
-						invoice_no: '001'
+						invoice_no: '001',
+						discount: formData.discount
 					};
 
 					if (selectedContact) {
@@ -171,19 +203,7 @@
 						if (errors.items_length) {
 							toast.error('Please add at least one item.');
 						}
-						error.issues.forEach((issue) => {
-							if (issue.path[0] === 'items') {
-								if (errors.items[issue.path[1]] === undefined) errors.items[issue.path[1]] = {};
 
-								if (errors.items[issue.path[1]][issue.path[2]] === undefined) {
-									errors.items[issue.path[1]][issue.path[2]] = [issue.message];
-								} else {
-									errors.items[issue.path[1]][issue.path[2]].push(issue.message);
-								}
-							}
-						});
-
-						console.log(errors);
 						return;
 					}
 
@@ -196,7 +216,195 @@
 			loading = false;
 		}
 	};
+
+	let itemModalOpen = false;
+	let itemEditMode = false;
+	let itemEditIndex = 0;
+	let focusedItem: any = {
+		name: '',
+		description: '',
+		quantity: 1,
+		unit_price: 0,
+		is_taxable: true
+	};
+	let itemErrors: any = {};
+
+	$: focusedItem.unit_price = isNaN(Number(focusedItem.unit_price))
+		? 0
+		: Number(focusedItem.unit_price);
+
+	$: focusedItem.quantity = isNaN(Number(focusedItem.quantity))
+		? 1
+		: focusedItem.quantity < 1
+			? 1
+			: Number(focusedItem.quantity);
+
+	const openItemModal = () => {
+		itemModalOpen = true;
+	};
+
+	const closeItemModal = () => {
+		itemModalOpen = false;
+	};
+
+	const addItem = () => {
+		itemErrors = {};
+
+		try {
+			itemSchema.parse(focusedItem);
+
+			formData.items = [...formData.items, focusedItem];
+			focusedItem = {
+				name: '',
+				description: '',
+				quantity: 1,
+				unit_price: 0,
+				is_taxable: true
+			};
+			closeItemModal();
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				itemErrors = error.flatten().fieldErrors;
+				toast.error('Please check the form for errors.');
+				return;
+			}
+
+			console.error(error);
+
+			toast.error('Something went wrong. Please try again later.');
+		}
+	};
+
+	const updateItem = () => {
+		itemErrors = {};
+
+		try {
+			itemSchema.parse(focusedItem);
+
+			formData.items[itemEditIndex] = focusedItem;
+
+			if (focusedItem.$id) {
+				//TODO: Update item on server
+			}
+
+			focusedItem = {
+				name: '',
+				description: '',
+				quantity: 1,
+				unit_price: 0,
+				is_taxable: true
+			};
+			closeItemModal();
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				itemErrors = error.flatten().fieldErrors;
+				toast.error('Please check the form for errors.');
+				return;
+			}
+
+			console.error(error);
+
+			toast.error('Something went wrong. Please try again later.');
+		}
+	};
 </script>
+
+<div class="fixed left-0 top-0 z-50 h-screen w-screen px-5" class:hidden={!itemModalOpen}>
+	<div class="absolute left-0 top-0 h-screen w-screen bg-black/50"></div>
+	<div class="absolute left-0 top-0 flex h-screen w-screen items-center justify-center">
+		<Card.Root class="bg-background md:min-w-[500px]">
+			<Card.Header class="mb-0">
+				<div class="flex items-center justify-between">
+					<h3 class="font-semibold">{itemEditMode ? `Edit ${focusedItem.name}` : 'Add Item'}</h3>
+					<Button variant="ghost" size="icon" on:click={closeItemModal}>
+						<XCircle />
+					</Button>
+				</div>
+			</Card.Header>
+			<Card.Content class="p-5">
+				<div class="space-y-4">
+					<div class="space-y-2">
+						<Label required class="text-xs">NAME:</Label>
+						<Input
+							class="w-full rounded border border-muted-foreground p-2"
+							placeholder="Item Name"
+							bind:value={focusedItem.name}
+						/>
+
+						{#if itemErrors.name}
+							{#each itemErrors.name as error}
+								<p class="mt-1 text-xs text-destructive">{error}</p>
+							{/each}
+						{/if}
+					</div>
+
+					<div class="space-y-2">
+						<Label class="text-xs">DESCRIPTION:</Label>
+						<Textarea
+							class="w-full rounded border border-muted-foreground p-2"
+							placeholder="Item Description"
+							bind:value={focusedItem.description}
+						/>
+
+						{#if itemErrors.description}
+							{#each itemErrors.description as error}
+								<p class="mt-1 text-xs text-destructive">{error}</p>
+							{/each}
+						{/if}
+					</div>
+
+					<div class="grid grid-cols-2 gap-4">
+						<div class="space-y-2">
+							<Label required class="text-xs">UNIT PRICE:</Label>
+							<Input
+								class="w-full rounded border border-muted-foreground p-2"
+								placeholder="8000"
+								bind:value={focusedItem.unit_price}
+							/>
+
+							{#if itemErrors.unit_price}
+								{#each itemErrors.unit_price as error}
+									<p class="mt-1 text-xs text-destructive">{error}</p>
+								{/each}
+							{/if}
+						</div>
+						<div class="space-y-2">
+							<Label required class="text-xs">QUANTITY:</Label>
+							<Input
+								class="w-full rounded border border-muted-foreground p-2"
+								placeholder="Item Quantity"
+								bind:value={focusedItem.quantity}
+							/>
+
+							{#if itemErrors.quantity}
+								{#each itemErrors.quantity as error}
+									<p class="mt-1 text-xs text-destructive">{error}</p>
+								{/each}
+							{/if}
+						</div>
+
+						<div class="space-y-2">
+							<Label class="text-xs">TAX:</Label>
+							<Checkbox class="p-2" bind:checked={focusedItem.is_taxable} />
+
+							{#if itemErrors.is_taxable}
+								{#each itemErrors.is_taxable as error}
+									<p class="mt-1 text-xs text-destructive">{error}</p>
+								{/each}
+							{/if}
+						</div>
+					</div>
+
+					<div class="mt-5 flex justify-end">
+						<Button variant="default" on:click={itemEditMode ? updateItem : addItem}>
+							{itemEditMode ? 'Update Item' : 'Add Item'}
+						</Button>
+					</div>
+				</div>
+			</Card.Content>
+		</Card.Root>
+	</div>
+</div>
 
 <div class="flex flex-col-reverse md:flex-row">
 	<div
@@ -452,6 +660,26 @@
 							{/each}
 						{/if}
 					</div>
+
+					<Label class="text-xs" for="discount">DISCOUNT (%):</Label>
+
+					<div class="col-span-4 space-x-2">
+						<Input
+							class="w-full rounded border border-muted-foreground p-2"
+							id="discount"
+							type="number"
+							max={100}
+							min={0}
+							bind:value={formData.discount}
+							placeholder="0%"
+						/>
+						{#if errors.discount}
+							{#each errors.discount as error}
+								<p class="mt-1 text-xs text-destructive">{error}</p>
+							{/each}
+						{/if}
+					</div>
+
 					<Label class="text-xs" for="currency_symbol">CURRENCY SYMBOL:</Label>
 
 					<div class="col-span-4 space-x-2">
@@ -479,128 +707,151 @@
 			</div>
 			<div class="w-full md:col-span-2">
 				<Table.Root class="hidden w-full md:block">
-					<Table.Header>
+					<Table.Header class="w-full">
 						<Table.Row>
-							<Table.Head class="min-w-[200px]">Name</Table.Head>
-							<Table.Head class="w-full">Description</Table.Head>
-							<Table.Head class="min-w-[70px]">Qty</Table.Head>
-							<Table.Head class="min-w-[100px]">Unit Price</Table.Head>
-							<Table.Head class="min-w-[50px]">Tax</Table.Head>
-							<Table.Head></Table.Head>
+							<Table.Head class="min-w-full">Info</Table.Head>
+							<Table.Head class="min-w-full">Qty</Table.Head>
+							<Table.Head class="min-w-full">Unit Price</Table.Head>
+							<Table.Head class="min-w-full">Tax</Table.Head>
+							<Table.Head class="min-w-full">Discount</Table.Head>
+							<Table.Head class="min-w-full">Total</Table.Head>
+							<Table.Head class="min-w-full"></Table.Head>
 						</Table.Row>
 					</Table.Header>
 					<Table.Body>
 						{#each formData.items as item, i (i)}
 							<Table.Row>
-								<Table.Cell class="align-top font-medium">
-									<Input bind:value={item.name} placeholder="Item Name" />
-									{#if errors.items && errors.items[i] && errors.items[i].name}
-										{#each errors.items[i].name as error}
-											<p class="mt-1 text-xs text-destructive">{error}</p>
-										{/each}
-									{/if}
+								<Table.Cell class="align-top">
+									<p class="font-semibold">{item.name}</p>
+									<p class="text-sm text-muted-foreground">{item.description}</p>
+								</Table.Cell>
+								<Table.Cell class="align-top">
+									<p>{item.quantity}</p>
 								</Table.Cell>
 								<Table.Cell class="align-top font-medium">
-									<Textarea bind:value={item.description} placeholder="Item Description" />
-									{#if errors.items && errors.items[i] && errors.items[i].description}
-										{#each errors.items[i].description as error}
-											<p class="mt-1 text-xs text-destructive">{error}</p>
-										{/each}
-									{/if}
+									<p>{formatCurrency(item.unit_price)}</p>
 								</Table.Cell>
 								<Table.Cell class="align-top font-medium">
-									<Input bind:value={item.quantity} placeholder="Item Quantity" />
-									{#if errors.items && errors.items[i] && errors.items[i].quantity}
-										{#each errors.items[i].quantity as error}
-											<p class="mt-1 text-xs text-destructive">{error}</p>
-										{/each}
+									{#if item.is_taxable}
+										<p>
+											{formatCurrency(item.quantity * item.unit_price * (formData.tax_rate / 100))}
+										</p>
+									{:else}
+										<p>0</p>
 									{/if}
 								</Table.Cell>
+
 								<Table.Cell class="align-top font-medium">
-									<Input bind:value={item.unit_price} placeholder="Item Unit Price" />
-									{#if errors.items && errors.items[i] && errors.items[i].unit_price}
-										{#each errors.items[i].unit_price as error}
-											<p class="mt-1 text-xs text-destructive">{error}</p>
-										{/each}
-									{/if}
+									<p>
+										-{formatCurrency(item.quantity * item.unit_price * (formData.discount / 100))}
+									</p>
 								</Table.Cell>
+
 								<Table.Cell class="align-top font-medium">
-									<Checkbox bind:checked={item.is_taxable} class="p-2" />
+									{#if item.is_taxable}
+										<p>
+											{formatCurrency(
+												item.quantity * item.unit_price +
+													item.quantity * item.unit_price * (formData.tax_rate / 100) -
+													item.quantity * item.unit_price * (formData.discount / 100)
+											)}
+										</p>
+									{:else}
+										<p>
+											{formatCurrency(
+												item.quantity * item.unit_price -
+													item.quantity * item.unit_price * (formData.discount / 100)
+											)}
+										</p>
+									{/if}
 								</Table.Cell>
 								<Table.Cell class="align-top font-medium">
 									<Button
-										variant="destructive"
-										size="sm"
+										variant="secondary"
+										size="icon"
 										on:click={() => {
-											formData.items = formData.items.filter((_, index) => index !== i);
+											itemEditMode = true;
+											itemEditIndex = i;
+											focusedItem = item;
+											openItemModal();
 										}}
 									>
-										<Trash class="h-4 w-4" />
+										<Pen class="h-4 w-4" />
 									</Button>
 								</Table.Cell>
 							</Table.Row>
 						{/each}
 					</Table.Body>
-
-					{#if formData.items.length < 1}
-						<Table.Footer class=" bg-background text-foreground">
-							<Table.Row class="border-b-0">
-								<Table.Cell colspan={6} class=" text-center">
-									<p>No items added yet.</p>
-								</Table.Cell>
-							</Table.Row>
-						</Table.Footer>
-					{/if}
 				</Table.Root>
 
 				<div class="space-y-4 md:hidden">
 					{#each formData.items as item, i (i)}
 						<Card.Root>
-							<Card.Content class="p-5">
+							<Card.Content class="space-y-4 p-5">
 								<div>
-									<Label class="text-xs">NAME:</Label>
-									<Input
-										class="w-full rounded border border-muted-foreground p-2"
-										bind:value={item.name}
-										placeholder="Item Name"
-									/>
+									<div class="flex items-center space-x-2">
+										<p class="text-sm">Name:</p>
+										<p class="text-sm font-semibold">
+											{item.name}
+										</p>
+									</div>
 								</div>
 
-								<div class="mt-5">
-									<Label class="text-xs">DESCRIPTION:</Label>
-									<Textarea
-										class="w-full rounded border border-muted-foreground p-2"
-										bind:value={item.description}
-										placeholder="Item Description"
-									/>
+								<div class:hidden={!item.description.length}>
+									<p class="text-sm">Description:</p>
+									<p class="mt-2 text-sm font-semibold text-muted-foreground">
+										{item.description}
+									</p>
 								</div>
 
-								<div class="mt-5">
-									<Label class="text-xs">QUANTITY:</Label>
-									<Input
-										class="w-full rounded border border-muted-foreground p-2"
-										bind:value={item.quantity}
-										placeholder="Item Quantity"
-									/>
+								<div class="flex items-center space-x-2">
+									<p class="text-sm">Quantity:</p>
+									<p class="text-sm font-semibold">
+										{item.quantity}
+									</p>
 								</div>
 
-								<div class="mt-5">
-									<Label class="text-xs">UNIT PRICE:</Label>
-									<Input
-										class="w-full rounded border border-muted-foreground p-2"
-										bind:value={item.unit_price}
-										placeholder="Item Unit Price"
-									/>
+								<div class="flex items-center space-x-2">
+									<p class="text-sm">Unit Price:</p>
+									<p class="text-sm font-semibold">
+										{formatCurrency(item.unit_price)}
+									</p>
 								</div>
 
-								<div class="mt-5 flex items-center justify-between">
-									<Label class="text-xs">TAX:</Label>
-									<Checkbox bind:checked={item.is_taxable} class="p-2" />
+								<div class="flex items-center space-x-2">
+									<p class="text-sm">Tax:</p>
+									<p class="text-sm font-semibold">
+										{formatCurrency(
+											item.is_taxable
+												? item.quantity * item.unit_price * (formData.tax_rate / 100)
+												: 0
+										)}
+									</p>
 								</div>
 
-								<!-- Remove Item -->
+								<div class="flex items-center space-x-2">
+									<p class="text-sm">Discount:</p>
+									<p class="text-sm font-semibold">
+										{formatCurrency(item.quantity * item.unit_price * (formData.discount / 100))}
+									</p>
+								</div>
+
+								<div class="flex items-center space-x-2">
+									<p class="text-sm">Total:</p>
+									<p class="text-sm font-semibold">
+										{formatCurrency(
+											item.is_taxable
+												? item.quantity * item.unit_price +
+														item.quantity * item.unit_price * (formData.tax_rate / 100) -
+														item.quantity * item.unit_price * (formData.discount / 100)
+												: item.quantity * item.unit_price -
+														item.quantity * item.unit_price * (formData.discount / 100)
+										)}
+									</p>
+								</div>
+
 								<div class="mt-5 flex justify-end">
-									<Button
+									<!-- <Button
 										variant="destructive"
 										size="sm"
 										class="w-full"
@@ -610,6 +861,21 @@
 									>
 										<Trash class="mr-2 h-4 w-4" />
 										Remove Item
+									</Button> -->
+
+									<Button
+										variant="secondary"
+										size="sm"
+										class="w-full"
+										on:click={() => {
+											itemEditMode = true;
+											itemEditIndex = i;
+											focusedItem = item;
+											openItemModal();
+										}}
+									>
+										<Pen class="h-4 w-4" />
+										Edit Item
 									</Button>
 								</div>
 							</Card.Content>
@@ -632,16 +898,18 @@
 						variant="default"
 						size="sm"
 						on:click={() => {
-							formData.items = [
-								...formData.items,
-								{
-									name: '',
-									description: '',
-									quantity: 1,
-									unit_price: 0,
-									is_taxable: true
-								}
-							];
+							// formData.items = [
+							// 	...formData.items,
+							// 	{
+							// 		name: '',
+							// 		description: '',
+							// 		quantity: 1,
+							// 		unit_price: 0,
+							// 		is_taxable: true
+							// 	}
+							// ];
+
+							openItemModal();
 						}}
 					>
 						<Plus class="mr-2 h-4 w-4" />
@@ -659,46 +927,25 @@
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Subtotal:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(
-									formData.items.reduce((acc, item) => {
-										if (item.unit_price) {
-											return acc + item.quantity * item.unit_price;
-										} else {
-											return acc;
-										}
-									}, 0)
-								)}
+								{formatCurrency(subtotal)}
 							</p>
 						</div>
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Tax:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(
-									formData.items.reduce(
-										(acc, item) =>
-											acc +
-											(item.is_taxable
-												? item.quantity * item.unit_price * (formData.tax_rate / 100)
-												: 0),
-										0
-									)
-								)}
+								{formatCurrency(tax)}
+							</p>
+						</div>
+						<div class="flex items-center space-x-2">
+							<p class="text-sm">Discount:</p>
+							<p class="text-sm font-semibold">
+								{formatCurrency(discount)}
 							</p>
 						</div>
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Total:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(
-									formData.items.reduce(
-										(acc, item) =>
-											acc +
-											item.quantity * item.unit_price +
-											(item.is_taxable
-												? item.quantity * item.unit_price * (formData.tax_rate / 100)
-												: 0),
-										0
-									)
-								)}
+								{formatCurrency(total)}
 							</p>
 						</div>
 					</div>

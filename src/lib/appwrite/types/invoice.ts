@@ -16,4 +16,5 @@ export interface CreateInvoice {
 	date: Date;
 	due_date: Date;
 	items: CreateItems[];
+	discount: number;
 }

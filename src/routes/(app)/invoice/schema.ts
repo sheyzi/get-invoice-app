@@ -44,21 +44,14 @@ export const invoiceSchema = z
 		due_date: z
 			.string({ required_error: 'Due date is required' })
 			.min(1, { message: 'Due date is required' }),
-		items: z.array(
-			z.object({
-				name: z.string().min(1, { message: 'Name is required' }),
-				description: z.string().optional(),
-				quantity: z.number().int().min(1, { message: 'Quantity must be at least 1' }),
-				unit_price: z.number().int().positive({ message: 'Unit price must be positive' }),
-				is_taxable: z.boolean()
-			})
-		),
+		items: z.array(z.any()),
 		notes: z.string().optional(),
 		tax_rate: z.number().int({ message: 'Tax rate must be an integer' }).min(0).max(100),
 		currency_symbol: z
 			.string()
 			.min(1, { message: 'Currency symbol is required' })
-			.max(5, { message: 'Currency symbol is too long' })
+			.max(5, { message: 'Currency symbol is too long' }),
+		discount: z.number().int({ message: 'Discount must be an integer' }).min(0).max(100)
 	})
 	.superRefine((data, ctx) => {
 		if (data.tax_rate < 0 || data.tax_rate > 100) {
@@ -88,3 +81,11 @@ export const invoiceSchema = z
 			});
 		}
 	});
+
+export const itemSchema = z.object({
+	name: z.string().min(1, { message: 'Name is required' }),
+	description: z.string().optional(),
+	quantity: z.number().int().min(1, { message: 'Quantity must be at least 1' }),
+	unit_price: z.number().int().positive({ message: 'Unit price must be positive' }),
+	is_taxable: z.boolean()
+});
