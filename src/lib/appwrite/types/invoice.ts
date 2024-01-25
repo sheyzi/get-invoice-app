@@ -15,6 +15,10 @@ export interface CreateInvoice {
 	tax_rate: number;
 	date: Date;
 	due_date: Date;
-	items: CreateItems[];
+	items: CreateItems[] | string[];
 	discount: number;
+}
+
+export interface UpdateInvoice extends Partial<CreateInvoice> {
+	items: CreateItems[] | string[];
 }

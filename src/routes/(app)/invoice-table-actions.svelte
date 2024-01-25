@@ -43,6 +43,9 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content>
 		<DropdownMenu.Item class="cursor-pointer" href="/invoice/{id}">View invoice</DropdownMenu.Item>
+		<DropdownMenu.Item class="cursor-pointer" href="/invoice/{id}/edit"
+			>Edit invoice</DropdownMenu.Item
+		>
 		<!-- <DropdownMenu.Item class="cursor-pointer" href="/invoice/{id}">Edit invoice</DropdownMenu.Item> -->
 
 		<DropdownMenu.Item class="cursor-pointer" on:click={() => (deleteDialogOpen = true)}>

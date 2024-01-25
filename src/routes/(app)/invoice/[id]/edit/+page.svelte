@@ -27,5 +27,5 @@
 		<Loader2 class="animate-spin" />
 	</div>
 {:then invoice}
-	<InvoiceForm />
+	<InvoiceForm invoiceToEdit={invoice} />
 {/await}

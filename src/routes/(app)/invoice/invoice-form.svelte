@@ -19,11 +19,14 @@
 		createInvoice,
 		type CreateInvoice,
 		type Contact,
-		getActiveOrganization
+		getActiveOrganization,
+		updateInvoiceItem,
+		type UpdateInvoice,
+		updateInvoice
 	} from '$lib/appwrite';
 	import { page } from '$app/stores';
 	import { cn, formatCurrency } from '$lib/utils';
-	import { tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { invoiceSchema, itemSchema } from './schema';
 	import { z } from 'zod';
 	import { toast } from 'svelte-sonner';
@@ -31,6 +34,7 @@
 
 	let switchingOrganizations = false;
 	let selectedContact: Contact | null = null;
+	export let invoiceToEdit: any = null;
 
 	let formData: any = {
 		title: '',
@@ -57,6 +61,38 @@
 		currency_symbol: '₦',
 		discount: 0
 	};
+
+	onMount(() => {
+		if (invoiceToEdit) {
+			formData = {
+				title: invoiceToEdit.title,
+				from: {
+					name: invoiceToEdit.organization.name,
+					email: invoiceToEdit.organization.email,
+					address: `${invoiceToEdit.organization.street}, ${invoiceToEdit.organization.city}, ${invoiceToEdit.organization.state}, ${invoiceToEdit.organization.country}`,
+					phone: invoiceToEdit.organization.phone,
+					vat_id: invoiceToEdit.organization.vat_id
+				},
+				to: {
+					name: invoiceToEdit.contact.name,
+					email: invoiceToEdit.contact.email,
+					address: invoiceToEdit.contact.address,
+					phone: invoiceToEdit.contact.phone,
+					vat_id: invoiceToEdit.contact.vat_id
+				},
+				invoice_prefix: invoiceToEdit.invoice_prefix,
+				date: new Date(invoiceToEdit.date).toISOString().split('T')[0],
+				due_date: new Date(invoiceToEdit.due_date).toISOString().split('T')[0],
+				items: invoiceToEdit.items,
+				notes: invoiceToEdit.notes,
+				tax_rate: invoiceToEdit.tax_rate,
+				currency_symbol: invoiceToEdit.currency_symbol,
+				discount: invoiceToEdit.discount
+			};
+
+			selectedContact = invoiceToEdit.contact;
+		}
+	});
 
 	$: if (selectedContact) {
 		formData.to = {
@@ -172,27 +208,57 @@
 				try {
 					invoiceSchema.parse(formData);
 
-					const dataToSend: CreateInvoice = {
-						title: formData.title,
-						tax_rate: formData.tax_rate,
-						currency_symbol: formData.currency_symbol,
-						date: new Date(formData.date),
-						due_date: new Date(formData.due_date),
-						items: formData.items,
-						notes: formData.notes,
-						invoice_prefix: formData.invoice_prefix,
-						invoice_no: '001',
-						discount: formData.discount
-					};
+					if (!invoiceToEdit) {
+						const dataToSend: CreateInvoice = {
+							title: formData.title,
+							tax_rate: formData.tax_rate,
+							currency_symbol: formData.currency_symbol,
+							date: new Date(formData.date),
+							due_date: new Date(formData.due_date),
+							items: formData.items,
+							notes: formData.notes,
+							invoice_prefix: formData.invoice_prefix,
+							invoice_no: '001',
+							discount: formData.discount
+						};
 
-					if (selectedContact) {
-						const invoice = await createInvoice(dataToSend, selectedContact.$id);
+						if (selectedContact) {
+							const invoice = await createInvoice(dataToSend, selectedContact.$id);
+							const activeOrganization = await getActiveOrganization();
+							activeOrganizationStore.set(activeOrganization);
+							toast.success('Invoice created successfully.');
+							await goto(`/invoice/${invoice.$id}`);
+						} else {
+							toast.error('Please select a contact to continue.');
+						}
+					} else {
+						let dataToSend: UpdateInvoice = {
+							title: formData.title,
+							tax_rate: formData.tax_rate,
+							currency_symbol: formData.currency_symbol,
+							date: new Date(formData.date),
+							due_date: new Date(formData.due_date),
+							notes: formData.notes,
+							invoice_prefix: formData.invoice_prefix,
+							invoice_no: '001',
+							discount: formData.discount,
+							items: []
+						};
+
+						formData.items.forEach((item: any) => {
+							if (item.$id) {
+								dataToSend.items?.push(item.$id);
+							} else {
+								dataToSend.items?.push(item);
+							}
+						});
+
+						await updateInvoice(invoiceToEdit.$id, dataToSend);
+
 						const activeOrganization = await getActiveOrganization();
 						activeOrganizationStore.set(activeOrganization);
-						toast.success('Invoice created successfully.');
-						await goto(`/invoice/${invoice.$id}`);
-					} else {
-						toast.error('Please select a contact to continue.');
+						toast.success('Invoice updated successfully.');
+						await goto(`/invoice/${invoiceToEdit.$id}`);
 					}
 				} catch (error) {
 					if (error instanceof z.ZodError) {
@@ -275,7 +341,10 @@
 		}
 	};
 
-	const updateItem = () => {
+	let updatingItem = false;
+
+	const updateItem = async () => {
+		updatingItem = true;
 		itemErrors = {};
 
 		try {
@@ -284,7 +353,13 @@
 			formData.items[itemEditIndex] = focusedItem;
 
 			if (focusedItem.$id) {
-				//TODO: Update item on server
+				await updateInvoiceItem(focusedItem.$id, {
+					name: focusedItem.name,
+					description: focusedItem.description,
+					quantity: focusedItem.quantity,
+					unit_price: focusedItem.unit_price,
+					is_taxable: focusedItem.is_taxable
+				});
 			}
 
 			focusedItem = {
@@ -305,6 +380,8 @@
 			console.error(error);
 
 			toast.error('Something went wrong. Please try again later.');
+		} finally {
+			updatingItem = false;
 		}
 	};
 </script>
@@ -397,7 +474,11 @@
 
 					<div class="mt-5 flex justify-end">
 						<Button variant="default" on:click={itemEditMode ? updateItem : addItem}>
-							{itemEditMode ? 'Update Item' : 'Add Item'}
+							{#if updatingItem}
+								<Loader2 class="h-4 w-4 animate-spin" />
+							{:else}
+								{itemEditMode ? 'Update Item' : 'Add Item'}
+							{/if}
 						</Button>
 					</div>
 				</div>
@@ -966,6 +1047,8 @@
 				<Button class="w-full" variant="default" on:click={handleSubmit}>
 					{#if loading}
 						<Loader2 class="animate-spin" />
+					{:else if invoiceToEdit}
+						Update Invoice
 					{:else}
 						Create Invoice
 					{/if}

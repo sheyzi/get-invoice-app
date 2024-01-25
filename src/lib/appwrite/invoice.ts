@@ -5,9 +5,14 @@ import {
 	getActiveOrganization,
 	// updateContact,
 	type CreateInvoice,
-	getContact
+	getContact,
+	type UpdateInvoice
 } from '$lib/appwrite';
-import { PUBLIC_INVOICE_COLLECTION_ID, PUBLIC_APPWRITE_DATABASE_ID } from '$env/static/public';
+import {
+	PUBLIC_INVOICE_COLLECTION_ID,
+	PUBLIC_INVOICE_ITEMS_COLLECTION_ID,
+	PUBLIC_APPWRITE_DATABASE_ID
+} from '$env/static/public';
 
 export const createInvoice = async (data: CreateInvoice, contact_id: string) => {
 	const organization = await getActiveOrganization();
@@ -53,6 +58,27 @@ export const getInvoice = async (invoice_id: string) => {
 		PUBLIC_APPWRITE_DATABASE_ID,
 		PUBLIC_INVOICE_COLLECTION_ID,
 		invoice_id
+	);
+};
+
+export const updateInvoice = async (invoice_id: string, data: UpdateInvoice) => {
+	return await database.updateDocument(
+		PUBLIC_APPWRITE_DATABASE_ID,
+		PUBLIC_INVOICE_COLLECTION_ID,
+		invoice_id,
+		data
+	);
+};
+
+export const updateInvoiceItem = async (
+	item_id: string,
+	data: Partial<CreateInvoice['items'][0]>
+) => {
+	return await database.updateDocument(
+		PUBLIC_APPWRITE_DATABASE_ID,
+		PUBLIC_INVOICE_ITEMS_COLLECTION_ID,
+		item_id,
+		data
 	);
 };
 

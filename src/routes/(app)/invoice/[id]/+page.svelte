@@ -27,11 +27,10 @@
 	$: invoice = getInvoiceData();
 
 	const printInvoice = async () => {
-		let printContent = document.getElementById('printTemplate');
-		let originalContent = document.body.innerHTML;
-		document.body.innerHTML = printContent?.innerHTML || '';
+		let printContent = document.getElementById('invoice-print-template');
 
 		if (printContent) {
+			await printContent.classList.remove('hidden');
 			const options = {
 				margin: 0.5,
 				filename: `${(await invoice).title}.pdf`,
@@ -39,11 +38,12 @@
 				html2canvas: { scale: 2 },
 				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
 			};
-			await html2pdf().from(document.body).set(options).save();
-
-			document.body.innerHTML = originalContent;
+			await html2pdf().from(printContent).set(options).save();
+			await printContent.classList.add('hidden');
 		}
 	};
+
+	import PrintInvoice from './print-invoice.svelte';
 </script>
 
 <svelte:head>
@@ -259,6 +259,8 @@
 			</div>
 		{/if}
 	</div>
+
+	<PrintInvoice />
 
 	<div class="flex items-center space-x-4">
 		<Button href="/invoice/{$page.params.id}/edit">Edit Invoice</Button>
