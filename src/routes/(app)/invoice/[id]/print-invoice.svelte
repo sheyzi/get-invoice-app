@@ -10,7 +10,7 @@
 	let total = 0;
 
 	onMount(() => {
-		invoice.items.forEach((item) => {
+		invoice.items.forEach((item: any) => {
 			subTotal += item.quantity * item.unit_price;
 			tax += item.is_taxable ? item.quantity * item.unit_price * (invoice.tax_rate / 100) : 0;
 			discount += item.quantity * item.unit_price * (invoice.discount / 100);
@@ -20,6 +20,10 @@
 </script>
 
 <div class="body hidden" id="invoice-print-template">
+	<!-- <div class="body" id="invoice-print-template" style="relative"> -->
+	<div class="status {invoice.paid ? 'paid' : 'unpaid'}">
+		{invoice.paid ? 'Paid' : 'Unpaid'}
+	</div>
 	<div class="header">
 		<div class="header-left">
 			<h1 class="company-name">{invoice.organization.name}</h1>
@@ -44,9 +48,9 @@
 			</div>
 		</div>
 
-		<div class="header-right">
+		<!-- <div class="header-right">
 			<h1 class="invoice-title">Invoice</h1>
-		</div>
+		</div> -->
 	</div>
 
 	<div class="flex" style="margin-top: 4rem; align-items: center">
@@ -206,6 +210,7 @@
 		color: #212529;
 		text-align: left;
 		box-sizing: border-box;
+		position: relative;
 	}
 
 	.header {
@@ -358,5 +363,22 @@
 		line-height: 1.5;
 		color: #64748b;
 		text-align: justify;
+	}
+
+	.status {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		color: #fff;
+		background-color: #38c172;
+		z-index: 1;
+	}
+
+	.status.unpaid {
+		background-color: #e3342f;
 	}
 </style>

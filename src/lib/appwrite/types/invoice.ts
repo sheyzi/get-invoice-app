@@ -17,8 +17,9 @@ export interface CreateInvoice {
 	due_date: Date;
 	items: CreateItems[] | string[];
 	discount: number;
+	paid?: boolean;
 }
 
 export interface UpdateInvoice extends Partial<CreateInvoice> {
-	items: CreateItems[] | string[];
+	items?: CreateItems[] | string[];
 }

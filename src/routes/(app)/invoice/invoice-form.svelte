@@ -23,7 +23,8 @@
 		updateInvoiceItem,
 		type UpdateInvoice,
 		updateInvoice,
-		updateOrganization
+		updateOrganization,
+		getInvoice
 	} from '$lib/appwrite';
 	import { page } from '$app/stores';
 	import { cn, formatCurrency } from '$lib/utils';
@@ -394,6 +395,27 @@
 			updatingItem = false;
 		}
 	};
+
+	let togglingPaymentStatus = false;
+
+	const togglePaymentStatus = async () => {
+		togglingPaymentStatus = true;
+		try {
+			await updateInvoice(invoiceToEdit.$id, {
+				paid: invoiceToEdit.paid ? false : true
+			});
+
+			const activeOrganization = await getActiveOrganization();
+			activeOrganizationStore.set(activeOrganization);
+			invoiceToEdit = await getInvoice(invoiceToEdit.$id);
+			toast.success(`Invoice marked as ${invoiceToEdit.paid ? 'paid' : 'unpaid'}.`);
+		} catch (error) {
+			console.error(error);
+			toast.error('Something went wrong. Please try again later.');
+		} finally {
+			togglingPaymentStatus = false;
+		}
+	};
 </script>
 
 <div class="fixed left-0 top-0 z-50 h-screen w-screen px-5" class:hidden={!itemModalOpen}>
@@ -559,7 +581,7 @@
 	<ActiveOrg required bind:switchingOrganizations fullWidth={false} isVertical />
 </div>
 
-<div class="mt-5 rounded border p-5 shadow">
+<div class="relative mt-5 rounded border p-5 shadow">
 	{#if switchingOrganizations}
 		<div class="flex h-full items-center justify-center">
 			<Loader2 class="h-8 w-8 text-gray-500" />
@@ -1067,6 +1089,22 @@
 					{/if}
 				</Button>
 			</div>
+
+			{#if invoiceToEdit}
+				<Button
+					class="bottom-10 right-0 md:col-span-2"
+					variant="secondary"
+					on:click={togglePaymentStatus}
+				>
+					{#if togglingPaymentStatus}
+						<Loader2 class="animate-spin" />
+					{:else if invoiceToEdit.paid}
+						Mark as unpaid
+					{:else}
+						Mark as paid
+					{/if}
+				</Button>
+			{/if}
 		</div>
 	{/if}
 </div>

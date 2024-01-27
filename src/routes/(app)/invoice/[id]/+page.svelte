@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { getInvoice } from '$lib/appwrite';
-	import { Loader2 } from 'lucide-svelte';
+	import { getInvoice, updateInvoice } from '$lib/appwrite';
+	import { Loader2, RotateCw } from 'lucide-svelte';
 	import * as Table from '$lib/components/ui/table';
 
 	import { formatCurrency } from '$lib/utils';
@@ -14,7 +14,7 @@
 
 	const getInvoiceData = async () => {
 		const invoice = await getInvoice($page.params.id);
-		invoice.items.forEach((item) => {
+		invoice.items.forEach((item: any) => {
 			subTotal += item.quantity * item.unit_price;
 			tax += item.is_taxable ? item.quantity * item.unit_price * (invoice.tax_rate / 100) : 0;
 			discount += item.quantity * item.unit_price * (invoice.discount / 100);
@@ -43,7 +43,27 @@
 		}
 	};
 
+	let togglingPaymentStatus = false;
+
+	const togglePaymentStatus = async () => {
+		togglingPaymentStatus = true;
+		try {
+			const invoiceToEdit = await getInvoice($page.params.id);
+			await updateInvoice($page.params.id, {
+				paid: invoiceToEdit.paid ? false : true
+			});
+
+			invoice = getInvoiceData();
+		} catch (error) {
+			console.log(error);
+			toast.error("Couldn't update invoice status");
+		} finally {
+			togglingPaymentStatus = false;
+		}
+	};
+
 	import PrintInvoice from './print-invoice.svelte';
+	import { toast } from 'svelte-sonner';
 </script>
 
 <svelte:head>
@@ -59,7 +79,21 @@
 		<Loader2 class="animate-spin" />
 	</div>
 {:then invoice}
-	<div class=" h-full w-full bg-background" id="printTemplate">
+	<div class=" relative h-full w-full bg-background">
+		<button
+			class="status flex {invoice.paid ? 'paid' : 'unpaid'}"
+			on:click={togglePaymentStatus}
+			disabled={togglingPaymentStatus}
+		>
+			{#if togglingPaymentStatus}
+				<Loader2 class="animate-spin" />
+			{:else}
+				<p>
+					{invoice.paid ? 'Paid' : 'Unpaid'}
+				</p>
+				<RotateCw class="ml-2 h-5 w-5" />
+			{/if}
+		</button>
 		<div class="items-start justify-between md:flex">
 			<div>
 				<h3 class="text-3xl font-semibold">
@@ -86,7 +120,7 @@
 				{/if}
 			</div>
 
-			<p class="hidden text-3xl font-bold md:block">INVOICE</p>
+			<!-- <p class="hidden text-3xl font-bold md:block">INVOICE</p> -->
 		</div>
 
 		<div
@@ -271,3 +305,23 @@
 		<Button on:click={printInvoice} variant="secondary">Download Invoice</Button>
 	</div>
 {/await}
+
+<style>
+	.status {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		color: #fff;
+		background-color: #38c172;
+		z-index: 1;
+		cursor: pointer;
+	}
+
+	.status.unpaid {
+		background-color: #e3342f;
+	}
+</style>
