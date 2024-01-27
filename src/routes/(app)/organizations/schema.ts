@@ -32,7 +32,8 @@ export const organizationSchema = z.object({
 		.url({
 			message: 'Website must be a valid URL'
 		})
-		.optional()
+		.optional(),
+	vat_id: z.string().optional()
 });
 
 export type OrganizationSchema = typeof organizationSchema;

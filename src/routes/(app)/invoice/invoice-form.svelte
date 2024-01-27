@@ -22,7 +22,8 @@
 		getActiveOrganization,
 		updateInvoiceItem,
 		type UpdateInvoice,
-		updateInvoice
+		updateInvoice,
+		updateOrganization
 	} from '$lib/appwrite';
 	import { page } from '$app/stores';
 	import { cn, formatCurrency } from '$lib/utils';
@@ -53,6 +54,9 @@
 			vat_id: ''
 		},
 		invoice_prefix: 'INV-',
+		invoice_no: $activeOrganizationStore?.last_invoice_number
+			? Number($activeOrganizationStore?.last_invoice_number) + 1
+			: 1,
 		date: '',
 		due_date: '',
 		items: [],
@@ -81,6 +85,7 @@
 					vat_id: invoiceToEdit.contact.vat_id
 				},
 				invoice_prefix: invoiceToEdit.invoice_prefix,
+				invoice_no: invoiceToEdit.invoice_no,
 				date: new Date(invoiceToEdit.date).toISOString().split('T')[0],
 				due_date: new Date(invoiceToEdit.due_date).toISOString().split('T')[0],
 				items: invoiceToEdit.items,
@@ -218,12 +223,18 @@
 							items: formData.items,
 							notes: formData.notes,
 							invoice_prefix: formData.invoice_prefix,
-							invoice_no: '001',
+							invoice_no: formData.invoice_no,
 							discount: formData.discount
 						};
 
 						if (selectedContact) {
 							const invoice = await createInvoice(dataToSend, selectedContact.$id);
+							await updateOrganization($activeOrganizationStore.$id, {
+								last_invoice_number: JSON.stringify(formData.invoice_no).padStart(
+									5 - JSON.stringify(formData.invoice_no).length,
+									'0'
+								)
+							});
 							const activeOrganization = await getActiveOrganization();
 							activeOrganizationStore.set(activeOrganization);
 							toast.success('Invoice created successfully.');
@@ -240,7 +251,6 @@
 							due_date: new Date(formData.due_date),
 							notes: formData.notes,
 							invoice_prefix: formData.invoice_prefix,
-							invoice_no: '001',
 							discount: formData.discount,
 							items: []
 						};
@@ -679,7 +689,10 @@
 								class=" rounded border border-muted-foreground p-2"
 								id="invoice_no"
 								disabled
-								value="0001"
+								value={JSON.stringify(formData.invoice_no).padStart(
+									5 - JSON.stringify(formData.invoice_no).length,
+									'0'
+								)}
 								placeholder="0001"
 							/>
 						</div>

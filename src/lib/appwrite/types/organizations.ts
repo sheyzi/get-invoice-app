@@ -9,6 +9,8 @@ export interface CreateOrganization {
 	country: string;
 	phone?: string;
 	website?: string;
+	last_invoice_number?: string;
+	vat_id?: string;
 }
 
 export interface UpdateOrganization extends Partial<CreateOrganization> {

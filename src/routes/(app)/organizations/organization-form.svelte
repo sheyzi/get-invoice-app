@@ -42,7 +42,9 @@
 						zip: result.data.form.data.zip as string,
 						country: result.data.form.data.country as string,
 						phone: result.data.form.data.phone as string,
-						website: result.data.form.data.website as string
+						website: result.data.form.data.website as string,
+						vat_id: result.data.form.data.vat_id as string,
+						last_invoice_number: '0001'
 					};
 
 					const organization = await createOrganization(dataToSend);
@@ -67,7 +69,8 @@
 						zip: result.data.form.data.zip as string,
 						country: result.data.form.data.country as string,
 						phone: result.data.form.data.phone as string,
-						website: result.data.form.data.website as string
+						website: result.data.form.data.website as string,
+						vat_id: result.data.form.data.vat_id as string
 					};
 
 					await updateOrganization(organizationToEdit.$id, dataToSend);
@@ -189,8 +192,16 @@
 		</Form.Item>
 	</Form.Field>
 
-	<Form.Field {config} name="website">
+	<Form.Field {config} name="vat_id">
 		<Form.Item>
+			<Form.Label>VAT ID</Form.Label>
+			<Form.Input initialValue={organizationToEdit?.vat_id ?? ''} placeholder="123456789" />
+			<Form.Validation />
+		</Form.Item>
+	</Form.Field>
+
+	<Form.Field {config} name="website">
+		<Form.Item class="md:col-span-2">
 			<Form.Label>Website</Form.Label>
 			<Form.Input
 				type="url"

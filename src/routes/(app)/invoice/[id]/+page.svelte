@@ -126,7 +126,9 @@
 					<p class="block w-32 font-bold uppercase tracking-wide">Invoice #</p>
 					<span class="mr-4 inline-block">:</span>
 					<p>
-						{invoice.invoice_prefix}{invoice.invoice_no}
+						{invoice.invoice_prefix}{invoice.invoice_no
+							.toString()
+							.padStart(5 - JSON.stringify(invoice.invoice_no).length, '0')}
 					</p>
 				</div>
 				<div class="mb-1 flex items-center">

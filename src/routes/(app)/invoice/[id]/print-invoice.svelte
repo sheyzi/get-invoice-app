@@ -68,7 +68,9 @@
 				<p class="invoice-detail-item-title">Invoice No</p>
 				<span class="invoice-detail-item-column">:</span>
 				<p>
-					{invoice.invoice_prefix}{invoice.invoice_no}
+					{invoice.invoice_prefix}{invoice.invoice_no
+						.toString()
+						.padStart(5 - JSON.stringify(invoice.invoice_no).length, '0')}
 				</p>
 			</div>
 
