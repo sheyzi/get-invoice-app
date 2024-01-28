@@ -442,7 +442,7 @@
 		{/if}
 	</div>
 
-	<div class=" {organizationToEdit ? '' : 'md:col-span-2'}">
+	<div class=" ">
 		<Label for="website">Website</Label>
 		<Input
 			type="url"
