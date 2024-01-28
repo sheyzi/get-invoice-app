@@ -67,11 +67,19 @@
 				<Card.Root class="mt-10 w-full">
 					<Card.Header>
 						<div class="flex items-center">
-							<div
-								class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500 text-white"
-							>
-								{organization.name[0]}
-							</div>
+							{#if organization.logo}
+								<img
+									src={organization.logo}
+									alt={organization.name}
+									class="h-10 w-10 rounded-full"
+								/>
+							{:else}
+								<div
+									class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500 text-white"
+								>
+									{organization.name[0]}
+								</div>
+							{/if}
 							<div class="ml-4">
 								<div class="text-sm font-medium text-gray-900 dark:text-white">
 									{organization.name}

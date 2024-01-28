@@ -10,10 +10,11 @@ export const organizationSchema = z.object({
 	logo: z
 		.any()
 		.refine((image) => image.size < MAX_FILE_SIZE, 'Image is too large')
-		.refine(
-			(image) => image.type.startsWith('image/'),
-			'Only .jpg, .jpeg, .png and .webp formats are supported.'
-		)
+		.refine((image) => {
+			const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+			if (image.size === 0) return true;
+			return allowedTypes.includes(image.type);
+		}, 'Only .jpg, .jpeg, .png and .webp formats are supported.')
 		.optional(),
 	email: z.string().email({ message: 'Email must be a valid email address' }),
 	street: z.string().min(1, { message: 'Street is required' }),
@@ -27,12 +28,7 @@ export const organizationSchema = z.object({
 			message: 'Phone number must be a valid international phone number'
 		})
 		.optional(),
-	website: z
-		.string()
-		.url({
-			message: 'Website must be a valid URL'
-		})
-		.optional(),
+	website: z.string().optional(),
 	vat_id: z.string().optional()
 });
 

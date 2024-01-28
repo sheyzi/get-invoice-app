@@ -35,7 +35,7 @@
 				margin: 0.5,
 				filename: `${(await invoice).title}.pdf`,
 				image: { type: 'jpeg', quality: 0.98 },
-				html2canvas: { scale: 2 },
+				html2canvas: { scale: 2, useCors: true },
 				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
 			};
 			await html2pdf().from(printContent).set(options).save();
@@ -96,6 +96,13 @@
 		</button>
 		<div class="items-start justify-between md:flex">
 			<div>
+				{#if invoice.organization.logo}
+					<img
+						style="width: 3rem; margin-bottom: 10px"
+						src={invoice.organization.logo}
+						alt={invoice.organization.name}
+					/>
+				{/if}
 				<h3 class="text-3xl font-semibold">
 					{invoice.organization.name}
 				</h3>

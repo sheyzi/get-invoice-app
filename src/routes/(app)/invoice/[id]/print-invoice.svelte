@@ -8,6 +8,20 @@
 	let tax = 0;
 	let discount = 0;
 	let total = 0;
+	let organizationLogo: string | undefined;
+
+	const toDataURL = (url: string) =>
+		fetch(url)
+			.then((response) => response.blob())
+			.then(
+				(blob) =>
+					new Promise((resolve, reject) => {
+						const reader = new FileReader();
+						reader.onloadend = () => resolve(reader.result);
+						reader.onerror = reject;
+						reader.readAsDataURL(blob);
+					})
+			);
 
 	onMount(() => {
 		invoice.items.forEach((item: any) => {
@@ -16,6 +30,12 @@
 			discount += item.quantity * item.unit_price * (invoice.discount / 100);
 		});
 		total = subTotal + tax - discount;
+
+		if (invoice.organization.logo) {
+			toDataURL(invoice.organization.logo).then((dataUrl) => {
+				organizationLogo = dataUrl as string;
+			});
+		}
 	});
 </script>
 
@@ -26,6 +46,9 @@
 	</div>
 	<div class="header">
 		<div class="header-left">
+			{#if invoice.organization.logo}
+				<img src={organizationLogo} alt="Logo" style="width: 3rem; margin-bottom: 10px" />
+			{/if}
 			<h1 class="company-name">{invoice.organization.name}</h1>
 			<div class="company-details">
 				<p>{invoice.organization.email}</p>
