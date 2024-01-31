@@ -11,7 +11,6 @@
 	let tax = 0;
 	let discount = 0;
 	let total = 0;
-	let invoicePdfURL: any = null;
 
 	const getInvoiceData = async () => {
 		const invoice = await getInvoice($page.params.id);
@@ -65,36 +64,6 @@
 
 	import PrintInvoice from '$lib/components/print-invoice.svelte';
 	import { toast } from 'svelte-sonner';
-	import { onMount } from 'svelte';
-
-	onMount(async () => {
-		await invoice;
-
-		let printContent = document.getElementById('invoice-print-template');
-
-		if (printContent) {
-			await printContent.classList.remove('hidden');
-			const options = {
-				margin: 0.5,
-				filename: `${(await invoice).title}.pdf`,
-				image: { type: 'jpeg', quality: 0.98 },
-				html2canvas: { scale: 2, useCors: true },
-				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-			};
-			try {
-				const invoicePdfBlob = await html2pdf().from(printContent).set(options).output('blob');
-				let reader = new FileReader();
-				reader.readAsDataURL(invoicePdfBlob);
-				reader.onloadend = function () {
-					invoicePdfURL = reader.result;
-				};
-			} catch (err) {
-				console.log(err);
-			} finally {
-				await printContent.classList.add('hidden');
-			}
-		}
-	});
 </script>
 
 <svelte:head>

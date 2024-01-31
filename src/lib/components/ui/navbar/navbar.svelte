@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Loader } from '$lib/components/ui/loader';
-	import { User, Building, LogOut, Contact2 } from 'lucide-svelte';
+	import { User, Building, LogOut, Contact2, ScrollText } from 'lucide-svelte';
 	import { currentUser } from '$lib/stores/user';
 	import { account } from '$lib/appwrite';
 	import { ThemeSwitcher } from '$lib/components/ui/theme-switcher';
@@ -58,9 +58,9 @@
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">
 						<DropdownMenu.Group>
-							<DropdownMenu.Item href="profile" class="cursor-pointer">
-								<User class="mr-2 h-4 w-4" />
-								<span>Profile</span>
+							<DropdownMenu.Item href="/" class="cursor-pointer">
+								<ScrollText class="mr-2 h-4 w-4" />
+								<span>Invoice</span>
 							</DropdownMenu.Item>
 							<DropdownMenu.Item href="/organizations" class="cursor-pointer">
 								<Building class="mr-2 h-4 w-4" />
@@ -69,6 +69,10 @@
 							<DropdownMenu.Item href="/contacts" class="cursor-pointer">
 								<Contact2 class="mr-2 h-4 w-4" />
 								<span>Contacts</span>
+							</DropdownMenu.Item>
+							<DropdownMenu.Item href="/profile" class="cursor-pointer">
+								<User class="mr-2 h-4 w-4" />
+								<span>Profile</span>
 							</DropdownMenu.Item>
 						</DropdownMenu.Group>
 

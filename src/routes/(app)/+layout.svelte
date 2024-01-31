@@ -7,6 +7,7 @@
 	import { listOrganizations, getActiveOrganization } from '$lib/appwrite';
 	import { organizationsStore, activeOrganizationStore } from '$lib/stores/organization';
 	import { Loader2 } from 'lucide-svelte';
+	import Breadcrumb from '../../lib/components/breadcrumb.svelte';
 
 	$: if (!$currentUser) {
 		goto(`/auth/login?redirect=${encodeURIComponent($page.url.pathname)}`);
@@ -39,7 +40,10 @@
 			<Loader2 class="animate-spin" />
 		{:else}
 			<div class="h-full w-full">
-				<slot />
+				<Breadcrumb />
+				<div class="mt-10">
+					<slot />
+				</div>
 			</div>
 		{/if}
 	</div>
