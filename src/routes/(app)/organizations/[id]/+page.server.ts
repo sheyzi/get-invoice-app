@@ -1,13 +1,9 @@
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { organizationSchema } from '../schema';
-import type { Actions } from '@sveltejs/kit';
+import { fail, type Actions } from '@sveltejs/kit';
 
-export const load = (async () => {
-	return {
-		form: await superValidate(organizationSchema)
-	};
-}) satisfies PageServerLoad;
+export const load = (async () => {}) satisfies PageServerLoad;
 
 export const actions: Actions = {
 	default: async (event) => {

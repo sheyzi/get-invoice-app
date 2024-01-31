@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { PageData } from './$types';
 	import { getOrganization } from '$lib/appwrite';
 	import { page } from '$app/stores';
 	import { Loader2 } from 'lucide-svelte';
@@ -11,8 +10,6 @@
 		const organization = await getOrganization(id);
 		return organization;
 	};
-
-	export let data: PageData;
 
 	$: organization = getOrganizationData($page.params.id);
 </script>
@@ -34,6 +31,6 @@
 		title="Edit Organization"
 		description="Fill the form below to edit this organization"
 	>
-		<OrganizationForm form={data.form} organizationToEdit={organization} />
+		<OrganizationForm organizationToEdit={organization} />
 	</FormWrapper>
 {/await}

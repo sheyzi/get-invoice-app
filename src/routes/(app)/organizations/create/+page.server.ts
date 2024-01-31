@@ -1,16 +1,8 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { organizationSchema } from '../schema';
-import { superValidate } from 'sveltekit-superforms/server';
-import { storage, ID } from '../../../../lib/appwrite';
-import { PUBLIC_APPWRITE_BUCKET_ID } from '$env/static/public';
-import { ZodError, type AnyZodObject, type ZodObject, type z } from 'zod';
 
-export const load = (async () => {
-	return {
-		form: await superValidate(organizationSchema)
-	};
-}) satisfies PageServerLoad;
+export const load = (async () => {}) satisfies PageServerLoad;
 
 const validateOrganizationForm = async (formData: FormData) => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

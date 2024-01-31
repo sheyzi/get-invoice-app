@@ -27,7 +27,6 @@
 	import { enhance } from '$app/forms';
 	import { PUBLIC_APPWRITE_BUCKET_ID } from '$env/static/public';
 
-	export let form: SuperValidated<OrganizationSchema>;
 	export let organizationToEdit: Models.Document | null = null;
 	let organizationLogo = organizationToEdit?.logo ?? null;
 
@@ -102,6 +101,16 @@
 							);
 
 							const logoUrl = await storage.getFileView(PUBLIC_APPWRITE_BUCKET_ID, logo.$id);
+
+							try {
+								if (organizationToEdit?.logo) {
+									let logoToDelete = organizationToEdit?.logo.split('/').at(-2) as string;
+									console.log(logoToDelete);
+									await storage.deleteFile(PUBLIC_APPWRITE_BUCKET_ID, logoToDelete);
+								}
+							} catch (err) {
+								console.log(err);
+							}
 
 							dataToSend = {
 								...dataToSend,
