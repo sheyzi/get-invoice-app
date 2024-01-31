@@ -5,12 +5,13 @@
 	import * as Table from '$lib/components/ui/table';
 
 	import { formatCurrency } from '$lib/utils';
-	import { Button } from '../../../../lib/components/ui/button';
+	import { Button } from '$lib/components/ui/button';
 
 	let subTotal = 0;
 	let tax = 0;
 	let discount = 0;
 	let total = 0;
+	let invoicePdfURL: any = null;
 
 	const getInvoiceData = async () => {
 		const invoice = await getInvoice($page.params.id);
@@ -62,8 +63,38 @@
 		}
 	};
 
-	import PrintInvoice from './print-invoice.svelte';
+	import PrintInvoice from '$lib/components/print-invoice.svelte';
 	import { toast } from 'svelte-sonner';
+	import { onMount } from 'svelte';
+
+	onMount(async () => {
+		await invoice;
+
+		let printContent = document.getElementById('invoice-print-template');
+
+		if (printContent) {
+			await printContent.classList.remove('hidden');
+			const options = {
+				margin: 0.5,
+				filename: `${(await invoice).title}.pdf`,
+				image: { type: 'jpeg', quality: 0.98 },
+				html2canvas: { scale: 2, useCors: true },
+				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+			};
+			try {
+				const invoicePdfBlob = await html2pdf().from(printContent).set(options).output('blob');
+				let reader = new FileReader();
+				reader.readAsDataURL(invoicePdfBlob);
+				reader.onloadend = function () {
+					invoicePdfURL = reader.result;
+				};
+			} catch (err) {
+				console.log(err);
+			} finally {
+				await printContent.classList.add('hidden');
+			}
+		}
+	});
 </script>
 
 <svelte:head>
@@ -307,9 +338,18 @@
 
 	<PrintInvoice {invoice} />
 
-	<div class="flex items-center space-x-4">
+	<div class="flex flex-wrap items-center gap-4">
 		<Button href="/invoice/{$page.params.id}/edit">Edit Invoice</Button>
 		<Button on:click={printInvoice} variant="secondary">Download Invoice</Button>
+		<Button
+			href={`mailto:${invoice.contact.email}?subject=${invoice.title}&body=Hi ${
+				invoice.contact.name
+			},%0D%0A%0D%0AHere is the invoice for ${invoice.title.trim()}. You can download it from the link below.%0D%0A%0D%0A${
+				$page.url.protocol
+			}//${$page.url.host}/preview-invoice/${invoice.$id}`}
+			variant="secondary"
+			>Send Invoice
+		</Button>
 	</div>
 {/await}
 

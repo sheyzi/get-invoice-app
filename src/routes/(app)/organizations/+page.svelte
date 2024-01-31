@@ -11,6 +11,7 @@
 
 	let deleting = false;
 	let deleteDialogOpen = false;
+	let organizationToDelete: any = null;
 
 	const handleDelete = async (event: any, id: string) => {
 		event.preventDefault();
@@ -106,36 +107,15 @@
 
 						<div class="flex w-full items-center space-x-2">
 							<Button variant="outline" href={`/organizations/${organization.$id}`}>Edit</Button>
-
-							<AlertDialog.Root bind:open={deleteDialogOpen}>
-								<AlertDialog.Trigger class={buttonVariants({ variant: 'destructive' })}
-									>Delete</AlertDialog.Trigger
-								>
-								<AlertDialog.Content>
-									<AlertDialog.Header>
-										<AlertDialog.Title>
-											Are you sure you want to delete this organization?</AlertDialog.Title
-										>
-										<AlertDialog.Description>
-											Deleting this organization cannot be undone. This will permanently delete this
-											organization and all invoice and contacts associated with it.
-										</AlertDialog.Description>
-									</AlertDialog.Header>
-									<AlertDialog.Footer>
-										<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-										<AlertDialog.Action
-											on:click={(e) => handleDelete(e, organization.$id)}
-											class={buttonVariants({ variant: 'destructive' })}
-										>
-											{#if deleting}
-												<Loader2 class="animate-spin" />
-											{:else}
-												Delete
-											{/if}
-										</AlertDialog.Action>
-									</AlertDialog.Footer>
-								</AlertDialog.Content>
-							</AlertDialog.Root>
+							<Button
+								variant="destructive"
+								on:click={() => {
+									deleteDialogOpen = true;
+									organizationToDelete = organization;
+								}}
+							>
+								Delete
+							</Button>
 						</div>
 					</Card.Footer>
 				</Card.Root>
@@ -154,3 +134,30 @@
 		<!-- {/await} -->
 	</Card.Content>
 </Card.Root>
+
+<AlertDialog.Root bind:open={deleteDialogOpen}>
+	<AlertDialog.Content>
+		<AlertDialog.Header>
+			<AlertDialog.Title>
+				Are you sure you want to delete {organizationToDelete.name}?</AlertDialog.Title
+			>
+			<AlertDialog.Description>
+				Deleting this organization cannot be undone. This will permanently delete this organization
+				and all invoice and contacts associated with it.
+			</AlertDialog.Description>
+		</AlertDialog.Header>
+		<AlertDialog.Footer>
+			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Action
+				on:click={(e) => handleDelete(e, organizationToDelete.$id)}
+				class={buttonVariants({ variant: 'destructive' })}
+			>
+				{#if deleting}
+					<Loader2 class="animate-spin" />
+				{:else}
+					Delete
+				{/if}
+			</AlertDialog.Action>
+		</AlertDialog.Footer>
+	</AlertDialog.Content>
+</AlertDialog.Root>

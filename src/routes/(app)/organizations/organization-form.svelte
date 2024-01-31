@@ -105,7 +105,6 @@
 							try {
 								if (organizationToEdit?.logo) {
 									let logoToDelete = organizationToEdit?.logo.split('/').at(-2) as string;
-									console.log(logoToDelete);
 									await storage.deleteFile(PUBLIC_APPWRITE_BUCKET_ID, logoToDelete);
 								}
 							} catch (err) {
