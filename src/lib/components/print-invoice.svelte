@@ -149,17 +149,21 @@
 						<p class="item-description">{item.description}</p>
 					</td>
 					<td>{item.quantity}</td>
-					<td>{formatCurrency(item.unit_price)}</td>
+					<td>{formatCurrency(item.unit_price, invoice.currency_symbol)}</td>
 					<td>
 						{#if item.is_taxable}
-							{formatCurrency(item.quantity * item.unit_price * (invoice.tax_rate / 100))}
+							{formatCurrency(
+								item.quantity * item.unit_price * (invoice.tax_rate / 100),
+								invoice.currency_symbol
+							)}
 						{:else}
 							0
 						{/if}
 					</td>
 					<td>
 						{discount > 0 ? '-' : ''}{formatCurrency(
-							item.quantity * item.unit_price * (invoice.discount / 100)
+							item.quantity * item.unit_price * (invoice.discount / 100),
+							invoice.currency_symbol
 						)}
 					</td>
 					<td>
@@ -167,12 +171,14 @@
 							{formatCurrency(
 								item.quantity * item.unit_price +
 									item.quantity * item.unit_price * (invoice.tax_rate / 100) -
-									item.quantity * item.unit_price * (invoice.discount / 100)
+									item.quantity * item.unit_price * (invoice.discount / 100),
+								invoice.currency_symbol
 							)}
 						{:else}
 							{formatCurrency(
 								item.quantity * item.unit_price -
-									item.quantity * item.unit_price * (invoice.discount / 100)
+									item.quantity * item.unit_price * (invoice.discount / 100),
+								invoice.currency_symbol
 							)}
 						{/if}
 					</td>
@@ -188,25 +194,25 @@
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Sub Total</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>{formatCurrency(subTotal)}</p>
+				<p>{formatCurrency(subTotal, invoice.currency_symbol)}</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Tax</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>{formatCurrency(tax)}</p>
+				<p>{formatCurrency(tax, invoice.currency_symbol)}</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Discount</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>{discount > 0 ? '-' : ''}{formatCurrency(discount)}</p>
+				<p>{discount > 0 ? '-' : ''}{formatCurrency(discount, invoice.currency_symbol)}</p>
 			</div>
 
 			<div class="invoice-detail-item">
 				<p class="invoice-detail-item-title">Total</p>
 				<span class="invoice-detail-item-column">:</span>
-				<p>{formatCurrency(total)}</p>
+				<p>{formatCurrency(total, invoice.currency_symbol)}</p>
 			</div>
 		</div>
 	</div>

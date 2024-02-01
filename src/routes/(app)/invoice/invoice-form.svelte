@@ -39,7 +39,6 @@
 	export let invoiceToEdit: any = null;
 
 	let formData: any = {
-		
 		from: {
 			name: '',
 			email: '',
@@ -585,7 +584,6 @@
 		</div>
 	{:else}
 		<div class="grid h-full w-full grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-			
 			<div class="mt-10 space-y-4">
 				<h3 class="font-semibold">FROM: <span class="text-destructive">*</span></h3>
 				{#if !activeOrganizationStore}
@@ -824,12 +822,15 @@
 									<p>{item.quantity}</p>
 								</Table.Cell>
 								<Table.Cell class="align-top font-medium">
-									<p>{formatCurrency(item.unit_price)}</p>
+									<p>{formatCurrency(item.unit_price, formData.currency_symbol)}</p>
 								</Table.Cell>
 								<Table.Cell class="align-top font-medium">
 									{#if item.is_taxable}
 										<p>
-											{formatCurrency(item.quantity * item.unit_price * (formData.tax_rate / 100))}
+											{formatCurrency(
+												item.quantity * item.unit_price * (formData.tax_rate / 100),
+												formData.currency_symbol
+											)}
 										</p>
 									{:else}
 										<p>0</p>
@@ -838,7 +839,10 @@
 
 								<Table.Cell class="align-top font-medium">
 									<p>
-										-{formatCurrency(item.quantity * item.unit_price * (formData.discount / 100))}
+										-{formatCurrency(
+											item.quantity * item.unit_price * (formData.discount / 100),
+											formData.currency_symbol
+										)}
 									</p>
 								</Table.Cell>
 
@@ -848,14 +852,16 @@
 											{formatCurrency(
 												item.quantity * item.unit_price +
 													item.quantity * item.unit_price * (formData.tax_rate / 100) -
-													item.quantity * item.unit_price * (formData.discount / 100)
+													item.quantity * item.unit_price * (formData.discount / 100),
+												formData.currency_symbol
 											)}
 										</p>
 									{:else}
 										<p>
 											{formatCurrency(
 												item.quantity * item.unit_price -
-													item.quantity * item.unit_price * (formData.discount / 100)
+													item.quantity * item.unit_price * (formData.discount / 100),
+												formData.currency_symbol
 											)}
 										</p>
 									{/if}
@@ -909,7 +915,7 @@
 								<div class="flex items-center space-x-2">
 									<p class="text-sm">Unit Price:</p>
 									<p class="text-sm font-semibold">
-										{formatCurrency(item.unit_price)}
+										{formatCurrency(item.unit_price, formData.currency_symbol)}
 									</p>
 								</div>
 
@@ -919,7 +925,8 @@
 										{formatCurrency(
 											item.is_taxable
 												? item.quantity * item.unit_price * (formData.tax_rate / 100)
-												: 0
+												: 0,
+											formData.currency_symbol
 										)}
 									</p>
 								</div>
@@ -927,7 +934,10 @@
 								<div class="flex items-center space-x-2">
 									<p class="text-sm">Discount:</p>
 									<p class="text-sm font-semibold">
-										{formatCurrency(item.quantity * item.unit_price * (formData.discount / 100))}
+										{formatCurrency(
+											item.quantity * item.unit_price * (formData.discount / 100),
+											formData.currency_symbol
+										)}
 									</p>
 								</div>
 
@@ -940,7 +950,8 @@
 														item.quantity * item.unit_price * (formData.tax_rate / 100) -
 														item.quantity * item.unit_price * (formData.discount / 100)
 												: item.quantity * item.unit_price -
-														item.quantity * item.unit_price * (formData.discount / 100)
+														item.quantity * item.unit_price * (formData.discount / 100),
+											formData.currency_symbol
 										)}
 									</p>
 								</div>
@@ -1022,25 +1033,25 @@
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Subtotal:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(subtotal)}
+								{formatCurrency(subtotal, formData.currency_symbol)}
 							</p>
 						</div>
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Tax:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(tax)}
+								{formatCurrency(tax, formData.currency_symbol)}
 							</p>
 						</div>
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Discount:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(discount)}
+								{formatCurrency(discount, formData.currency_symbol)}
 							</p>
 						</div>
 						<div class="flex items-center space-x-2">
 							<p class="text-sm">Total:</p>
 							<p class="text-sm font-semibold">
-								{formatCurrency(total)}
+								{formatCurrency(total, formData.currency_symbol)}
 							</p>
 						</div>
 					</div>

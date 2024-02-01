@@ -61,9 +61,38 @@ export const pluralizeString = (name: string) => {
 	return name + 's';
 };
 
-export const formatCurrency = (amount: number) => {
-	return new Intl.NumberFormat('en-NG', {
-		style: 'currency',
-		currency: 'NGN'
-	}).format(amount);
+export const formatCurrency = (amount: number, currency?: string) => {
+	if (currency) {
+		if (currency === '₦') {
+			return new Intl.NumberFormat('en-NG', {
+				style: 'currency',
+				currency: 'NGN'
+			}).format(amount);
+		} else if (currency === '$') {
+			return new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'USD'
+			}).format(amount);
+		} else if (currency === '€') {
+			return new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'EUR'
+			}).format(amount);
+		} else if (currency === '£') {
+			return new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: 'GBP'
+			}).format(amount);
+		} else {
+			return new Intl.NumberFormat('en-US', {
+				style: 'currency',
+				currency: currency
+			}).format(amount);
+		}
+	} else {
+		return new Intl.NumberFormat('en-NG', {
+			style: 'currency',
+			currency: 'NGN'
+		}).format(amount);
+	}
 };
