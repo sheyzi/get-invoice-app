@@ -8,6 +8,7 @@
 	import InvoiceTableActions from './invoice-table-actions.svelte';
 	import { ChevronDown, ChevronUp } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Input } from '../../lib/components/ui/input';
 
 	let switchingOrganizations = false;
 
@@ -18,6 +19,28 @@
 	let columnSortStates = {
 		column: 'invoice_no',
 		order: 'asc'
+	};
+
+	const search = (value: string) => {
+		invoices.update((invoices: any[]) => {
+			if (value === '') {
+				return $activeOrganizationStore?.invoices || [];
+			}
+			const filtered = invoices.filter((invoice) => {
+				const invoiceNo = `${invoice.invoice_prefix}${invoice.invoice_no}`;
+				const contactName = invoice.contact.name;
+				const date = new Date(invoice.date).toLocaleDateString();
+				const dueDate = invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : '';
+
+				return (
+					invoiceNo.toLowerCase().includes(value.toLowerCase()) ||
+					contactName.toLowerCase().includes(value.toLowerCase()) ||
+					date.toLowerCase().includes(value.toLowerCase()) ||
+					dueDate.toLowerCase().includes(value.toLowerCase())
+				);
+			});
+			return filtered;
+		});
 	};
 
 	let columns = [
@@ -250,7 +273,11 @@
 	bind:switchingOrganizations
 	createUrl="/invoice/create"
 >
-	{#if $activeOrganizationStore?.invoices.length > 0}
+	<div class="w-full space-y-4">
+		<Input
+			placeholder="Search by name, contact name, date or due date"
+			on:input={(e) => search(e.target.value)}
+		/>
 		<table class="invoice-table">
 			<thead>
 				<tr>
@@ -311,7 +338,7 @@
 				{/each}
 			</tbody>
 		</table>
-	{/if}
+	</div>
 </OrganizationChildCard>
 
 <style>
