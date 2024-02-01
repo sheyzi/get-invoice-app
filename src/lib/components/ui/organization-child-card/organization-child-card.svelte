@@ -34,7 +34,7 @@
 		</div>
 	</Card.Header>
 	{#if $organizationsStore.length > 0}
-		<Card.Content class="flex justify-center pt-5">
+		<Card.Content class="flex justify-center overflow-x-auto pt-5">
 			{#if switchingOrganizations}
 				<Loader2 class="animate-spin" />
 			{:else if watchContact && $activeOrganizationStore?.contacts.length < 1}

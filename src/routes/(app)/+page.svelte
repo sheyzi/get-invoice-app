@@ -278,25 +278,35 @@
 			placeholder="Search by name, contact name, date or due date"
 			on:input={(e) => search(e.target.value)}
 		/>
-		<table class="invoice-table">
-			<thead>
-				<tr>
-					{#each columns as column}
-						<th class="">
-							<div class="flex items-center space-x-2">
-								<p>
-									{column.name}
-								</p>
-								{#if column.sortable}
-									{#if columnSortStates.column === column.id}
-										{#if columnSortStates.order === 'asc'}
-											<Button
-												variant="ghost"
-												size="no-padding"
-												on:click={() => column.sortFn && column.sortFn('desc')}
-											>
-												<ChevronUp class="h-4 w-4 text-muted-foreground" />
-											</Button>
+		<div class="overflow-x-auto">
+			<table class="invoice-table">
+				<thead>
+					<tr>
+						{#each columns as column}
+							<th class="">
+								<div class="flex items-center space-x-2">
+									<p>
+										{column.name}
+									</p>
+									{#if column.sortable}
+										{#if columnSortStates.column === column.id}
+											{#if columnSortStates.order === 'asc'}
+												<Button
+													variant="ghost"
+													size="no-padding"
+													on:click={() => column.sortFn && column.sortFn('desc')}
+												>
+													<ChevronUp class="h-4 w-4 text-muted-foreground" />
+												</Button>
+											{:else}
+												<Button
+													variant="ghost"
+													size="no-padding"
+													on:click={() => column.sortFn && column.sortFn('asc')}
+												>
+													<ChevronDown class="h-4 w-4 text-muted-foreground" />
+												</Button>
+											{/if}
 										{:else}
 											<Button
 												variant="ghost"
@@ -306,38 +316,30 @@
 												<ChevronDown class="h-4 w-4 text-muted-foreground" />
 											</Button>
 										{/if}
-									{:else}
-										<Button
-											variant="ghost"
-											size="no-padding"
-											on:click={() => column.sortFn && column.sortFn('asc')}
-										>
-											<ChevronDown class="h-4 w-4 text-muted-foreground" />
-										</Button>
 									{/if}
-								{/if}
-							</div>
-						</th>
-					{/each}
-				</tr>
-			</thead>
-
-			<tbody>
-				{#each $invoices as invoice}
-					<tr>
-						{#each columns as column}
-							<td>
-								{#if column.actionColumn}
-									<InvoiceTableActions id={invoice.$id} />
-								{:else}
-									{column.accesor(invoice)}
-								{/if}
-							</td>
+								</div>
+							</th>
 						{/each}
 					</tr>
-				{/each}
-			</tbody>
-		</table>
+				</thead>
+
+				<tbody>
+					{#each $invoices as invoice}
+						<tr>
+							{#each columns as column}
+								<td>
+									{#if column.actionColumn}
+										<InvoiceTableActions id={invoice.$id} />
+									{:else}
+										{column.accesor(invoice)}
+									{/if}
+								</td>
+							{/each}
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
 	</div>
 </OrganizationChildCard>
 
