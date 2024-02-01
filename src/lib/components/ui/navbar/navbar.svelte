@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Loader } from '$lib/components/ui/loader';
-	import { User, Building, LogOut, Contact2, ScrollText } from 'lucide-svelte';
+	import { User, Building, LogOut, Contact2, ScrollText, MessageCircle } from 'lucide-svelte';
 	import { currentUser } from '$lib/stores/user';
 	import { account } from '$lib/appwrite';
 	import { ThemeSwitcher } from '$lib/components/ui/theme-switcher';
@@ -76,6 +76,11 @@
 							</DropdownMenu.Item>
 						</DropdownMenu.Group>
 
+						<DropdownMenu.Separator />
+						<DropdownMenu.Item href="/feedback" class="cursor-pointer">
+							<MessageCircle class="mr-2 h-4 w-4" />
+							<span>Send Feedback</span>
+						</DropdownMenu.Item>
 						<DropdownMenu.Separator />
 
 						<DropdownMenu.Group>

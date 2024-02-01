@@ -14,7 +14,7 @@
 
 	$: showEmptyState = $activeOrganizationStore?.invoices.length === 0;
 
-	let invoices = writable($activeOrganizationStore?.invoices || []);
+	$: invoices = writable($activeOrganizationStore?.invoices || []);
 
 	let columnSortStates = {
 		column: 'invoice_no',
