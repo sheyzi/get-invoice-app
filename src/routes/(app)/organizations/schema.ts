@@ -28,7 +28,7 @@ export const organizationSchema = z.object({
 			message: 'Phone number must be a valid international phone number'
 		})
 		.optional(),
-	website: z.string().optional(),
+	website: z.string().url({ message: 'Website must be a valid URL' }).optional(),
 	vat_id: z.string().optional()
 });
 

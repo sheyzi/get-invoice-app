@@ -17,7 +17,7 @@
 		<title>Loading...</title>
 	{:then invoice}
 		<title>
-			Edit {invoice.title}
+			Edit {invoice.contact.name} Invoice - Get Invoice
 		</title>
 	{/await}
 </svelte:head>

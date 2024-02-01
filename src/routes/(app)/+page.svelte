@@ -3,64 +3,239 @@
 
 	import { ActiveOrg } from '$lib/components/ui/active-org';
 	import OrganizationChildCard from '$lib/components/ui/organization-child-card/organization-child-card.svelte';
-	import { Render, Subscribe, createRender, createTable } from 'svelte-headless-table';
-	import { readable } from 'svelte/store';
-	import * as Table from '$lib/components/ui/table';
+
+	import { writable } from 'svelte/store';
 	import InvoiceTableActions from './invoice-table-actions.svelte';
+	import { ChevronDown, ChevronUp } from 'lucide-svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	let switchingOrganizations = false;
 
 	$: showEmptyState = $activeOrganizationStore?.invoices.length === 0;
 
-	let table: any | null = null;
-	let columns: any | null = null;
-	let headerRows: any | null = null;
-	let pageRows: any | null = null;
-	let tableAttrs: any | null = null;
-	let tableBodyAttrs: any | null = null;
+	let invoices = writable($activeOrganizationStore?.invoices || []);
 
-	$: if ($activeOrganizationStore) {
-		table = createTable(readable($activeOrganizationStore.invoices));
+	let columnSortStates = {
+		column: 'invoice_no',
+		order: 'asc'
+	};
 
-		columns = table.createColumns([
-			table.column({
-				accessor: 'title',
-				header: 'Title'
-			}),
-			table.column({
-				accessor: (invoice: any) => `${invoice.invoice_prefix}${invoice.invoice_no}`,
-				header: 'Invoice Number'
-			}),
-			table.column({
-				accessor: (invoice: any) => invoice.contact.name,
-				header: 'Contact'
-			}),
-			table.column({
-				accessor: (invoice: any) => new Date(invoice.date).toLocaleDateString(),
-				header: 'Date'
-			}),
-			table.column({
-				accessor: (invoice: any) =>
-					invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : '',
-				header: 'Due Date'
-			}),
+	let columns = [
+		{
+			id: 'invoice_no',
+			name: 'Invoice Number',
+			accesor: (invoice: any) => `${invoice.invoice_prefix}${invoice.invoice_no}`,
+			sortable: true,
+			sortFn: (order: 'asc' | 'desc') => {
+				columnSortStates = {
+					column: 'invoice_no',
+					order
+				};
 
-			table.column({
-				accessor: (invoice: any) => invoice.$id,
-				header: '',
-				cell: ({ value }: any) => {
-					return createRender(InvoiceTableActions, { id: value });
+				if (order === 'asc') {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aInvoiceNo = a.invoice_no;
+							const bInvoiceNo = b.invoice_no;
+
+							if (aInvoiceNo < bInvoiceNo) {
+								return -1;
+							}
+
+							if (aInvoiceNo > bInvoiceNo) {
+								return 1;
+							}
+
+							columnSortStates;
+
+							return 0;
+						});
+						return sorted;
+					});
+				} else {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aInvoiceNo = a.invoice_no;
+							const bInvoiceNo = b.invoice_no;
+
+							if (aInvoiceNo > bInvoiceNo) {
+								return -1;
+							}
+
+							if (aInvoiceNo < bInvoiceNo) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
 				}
-			})
-		]);
+			}
+		},
+		{
+			id: 'status',
+			name: 'Status',
+			accesor: (invoice: any) => (invoice.paid ? 'Paid' : 'Unpaid'),
+			sortable: true,
+			sortFn: (order: 'asc' | 'desc') => {
+				columnSortStates = {
+					column: 'status',
+					order
+				};
 
-		let viewModel = table.createViewModel(columns);
+				if (order === 'asc') {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aPaid = a.paid;
+							const bPaid = b.paid;
 
-		headerRows = viewModel.headerRows;
-		pageRows = viewModel.pageRows;
-		tableAttrs = viewModel.tableAttrs;
-		tableBodyAttrs = viewModel.tableBodyAttrs;
-	}
+							if (aPaid < bPaid) {
+								return -1;
+							}
+
+							if (aPaid > bPaid) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
+				} else {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aPaid = a.paid;
+							const bPaid = b.paid;
+
+							if (aPaid > bPaid) {
+								return -1;
+							}
+
+							if (aPaid < bPaid) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
+				}
+			}
+		},
+		{
+			id: 'contact',
+			name: 'Contact',
+			accesor: (invoice: any) => invoice.contact.name
+		},
+		{
+			id: 'date',
+			name: 'Date',
+			accesor: (invoice: any) => new Date(invoice.date).toLocaleDateString(),
+			sortable: true,
+			sortFn: (order: 'asc' | 'desc') => {
+				columnSortStates = {
+					column: 'date',
+					order
+				};
+
+				if (order === 'asc') {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aDate = a.date;
+							const bDate = b.date;
+
+							if (aDate < bDate) {
+								return -1;
+							}
+
+							if (aDate > bDate) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
+				} else {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aDate = a.date;
+							const bDate = b.date;
+
+							if (aDate > bDate) {
+								return -1;
+							}
+
+							if (aDate < bDate) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
+				}
+			}
+		},
+		{
+			id: 'due_date',
+			name: 'Due Date',
+			accesor: (invoice: any) =>
+				invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : '',
+			sortable: true,
+			sortFn: (order: 'asc' | 'desc') => {
+				columnSortStates = {
+					column: 'due_date',
+					order
+				};
+
+				if (order === 'asc') {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aDueDate = a.due_date;
+							const bDueDate = b.due_date;
+
+							if (aDueDate < bDueDate) {
+								return -1;
+							}
+
+							if (aDueDate > bDueDate) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
+				} else {
+					invoices.update((invoices: any[]) => {
+						const sorted = invoices.sort((a, b) => {
+							const aDueDate = a.due_date;
+							const bDueDate = b.due_date;
+
+							if (aDueDate > bDueDate) {
+								return -1;
+							}
+
+							if (aDueDate < bDueDate) {
+								return 1;
+							}
+
+							return 0;
+						});
+						return sorted;
+					});
+				}
+			}
+		},
+		{
+			id: 'action',
+			name: '',
+			accesor: (invoice: any) => invoice.$id,
+			actionColumn: true
+		}
+	];
 </script>
 
 <svelte:head>
@@ -75,38 +250,105 @@
 	bind:switchingOrganizations
 	createUrl="/invoice/create"
 >
-	{#if table && columns}
-		<Table.Root {...$tableAttrs}>
-			<Table.Header>
-				{#each $headerRows as headerRow}
-					<Subscribe rowAttrs={headerRow.attrs()}>
-						<Table.Row>
-							{#each headerRow.cells as cell (cell.id)}
-								<Subscribe attrs={cell.attrs()} let:attrs props={cell.props()}>
-									<Table.Head {...attrs}>
-										<Render of={cell.render()} />
-									</Table.Head>
-								</Subscribe>
-							{/each}
-						</Table.Row>
-					</Subscribe>
+	{#if $activeOrganizationStore?.invoices.length > 0}
+		<table class="invoice-table">
+			<thead>
+				<tr>
+					{#each columns as column}
+						<th class="">
+							<div class="flex items-center space-x-2">
+								<p>
+									{column.name}
+								</p>
+								{#if column.sortable}
+									{#if columnSortStates.column === column.id}
+										{#if columnSortStates.order === 'asc'}
+											<Button
+												variant="ghost"
+												size="no-padding"
+												on:click={() => column.sortFn && column.sortFn('desc')}
+											>
+												<ChevronUp class="h-4 w-4 text-muted-foreground" />
+											</Button>
+										{:else}
+											<Button
+												variant="ghost"
+												size="no-padding"
+												on:click={() => column.sortFn && column.sortFn('asc')}
+											>
+												<ChevronDown class="h-4 w-4 text-muted-foreground" />
+											</Button>
+										{/if}
+									{:else}
+										<Button
+											variant="ghost"
+											size="no-padding"
+											on:click={() => column.sortFn && column.sortFn('asc')}
+										>
+											<ChevronDown class="h-4 w-4 text-muted-foreground" />
+										</Button>
+									{/if}
+								{/if}
+							</div>
+						</th>
+					{/each}
+				</tr>
+			</thead>
+
+			<tbody>
+				{#each $invoices as invoice}
+					<tr>
+						{#each columns as column}
+							<td>
+								{#if column.actionColumn}
+									<InvoiceTableActions id={invoice.$id} />
+								{:else}
+									{column.accesor(invoice)}
+								{/if}
+							</td>
+						{/each}
+					</tr>
 				{/each}
-			</Table.Header>
-			<Table.Body {...$tableBodyAttrs}>
-				{#each $pageRows as row (row.id)}
-					<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
-						<Table.Row {...rowAttrs}>
-							{#each row.cells as cell (cell.id)}
-								<Subscribe attrs={cell.attrs()} let:attrs>
-									<Table.Cell {...attrs}>
-										<Render of={cell.render()} />
-									</Table.Cell>
-								</Subscribe>
-							{/each}
-						</Table.Row>
-					</Subscribe>
-				{/each}
-			</Table.Body>
-		</Table.Root>
+			</tbody>
+		</table>
 	{/if}
 </OrganizationChildCard>
+
+<style>
+	.invoice-table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.invoice-table thead {
+		background-color: #f7fafc;
+		border-bottom: 1px solid #edf2f7;
+	}
+
+	.dark .invoice-table thead {
+		background-color: #1f2937;
+		border-bottom: 1px solid #1f2937;
+	}
+
+	.invoice-table th {
+		text-align: left;
+		padding: 0.5rem 1rem;
+		font-weight: 500;
+	}
+
+	.invoice-table td {
+		padding: 0.5rem 1rem;
+	}
+
+	.invoice-table tr {
+		border-bottom: 1px solid var(--border-color);
+	}
+
+	.invoice-table tr:last-child {
+		border-bottom: none;
+	}
+
+	.invoice-table tr:hover {
+		background-color: var(--background-color);
+	}
+</style>

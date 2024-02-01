@@ -39,7 +39,7 @@
 	export let invoiceToEdit: any = null;
 
 	let formData: any = {
-		title: '',
+		
 		from: {
 			name: '',
 			email: '',
@@ -70,7 +70,6 @@
 	onMount(() => {
 		if (invoiceToEdit) {
 			formData = {
-				title: invoiceToEdit.title,
 				from: {
 					name: invoiceToEdit.organization.name,
 					email: invoiceToEdit.organization.email,
@@ -216,7 +215,6 @@
 
 					if (!invoiceToEdit) {
 						const dataToSend: CreateInvoice = {
-							title: formData.title,
 							tax_rate: formData.tax_rate,
 							currency_symbol: formData.currency_symbol,
 							date: new Date(formData.date),
@@ -245,7 +243,6 @@
 						}
 					} else {
 						let dataToSend: UpdateInvoice = {
-							title: formData.title,
 							tax_rate: formData.tax_rate,
 							currency_symbol: formData.currency_symbol,
 							date: new Date(formData.date),
@@ -588,25 +585,7 @@
 		</div>
 	{:else}
 		<div class="grid h-full w-full grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-			<div class="grid md:col-span-2 md:grid-cols-2">
-				<div class="flex space-x-4">
-					<Label class="text-xs" required for="title">TITLE:</Label>
-					<div class="w-full">
-						<Input
-							class="w-full"
-							placeholder="LMS Development Invoice"
-							name="title"
-							id="title"
-							bind:value={formData.title}
-						/>
-						{#if errors.title}
-							{#each errors.title as error}
-								<p class="mt-1 text-xs text-destructive">{error}</p>
-							{/each}
-						{/if}
-					</div>
-				</div>
-			</div>
+			
 			<div class="mt-10 space-y-4">
 				<h3 class="font-semibold">FROM: <span class="text-destructive">*</span></h3>
 				{#if !activeOrganizationStore}

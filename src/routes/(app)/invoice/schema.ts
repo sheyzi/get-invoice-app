@@ -35,10 +35,6 @@ import { z } from 'zod';
 
 export const invoiceSchema = z
 	.object({
-		title: z
-			.string({ required_error: 'Title is required' })
-			.min(1, { message: 'Title is required' })
-			.max(100, { message: 'Title is too long' }),
 		invoice_prefix: z.string().min(1, { message: 'Invoice prefix is required' }),
 		date: z.string({ required_error: 'Date is required' }).min(1, { message: 'Date is required' }),
 		due_date: z

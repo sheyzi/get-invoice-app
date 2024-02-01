@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { organizationSchema } from '../schema';
+import { ZodError } from 'zod';
 
 export const load = (async () => {}) satisfies PageServerLoad;
 
@@ -10,7 +11,9 @@ const validateOrganizationForm = async (formData: FormData) => {
 	const errors: Record<string, string[]> = {};
 
 	for (const [key, value] of formData.entries()) {
-		data[key] = value;
+		if (value) {
+			data[key] = value;
+		}
 	}
 
 	try {

@@ -7,7 +7,6 @@ interface CreateItems {
 }
 
 export interface CreateInvoice {
-	title: string;
 	invoice_prefix: string;
 	invoice_no: string;
 	currency_symbol: string;

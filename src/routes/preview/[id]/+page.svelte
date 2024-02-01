@@ -71,7 +71,7 @@
 	{#await invoice}
 		<title>Loading...</title>
 	{:then invoice}
-		<title>{invoice.title} - Get Invoice</title>
+		<title>{invoice.contact.name} invoice - Get Invoice</title>
 	{/await}
 </svelte:head>
 <main class="container mt-16 px-5 md:px-10">

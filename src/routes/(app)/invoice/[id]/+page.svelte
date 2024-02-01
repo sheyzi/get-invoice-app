@@ -33,7 +33,7 @@
 			await printContent.classList.remove('hidden');
 			const options = {
 				margin: 0.5,
-				filename: `${(await invoice).title}.pdf`,
+				filename: `${(await invoice).contact.name} invoice.pdf`,
 				image: { type: 'jpeg', quality: 0.98 },
 				html2canvas: { scale: 2, useCors: true },
 				jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
@@ -41,6 +41,12 @@
 			await html2pdf().from(printContent).set(options).save();
 			await printContent.classList.add('hidden');
 		}
+	};
+
+	const copyToClipboard = async () => {
+		const invoiceLink = `${$page.url.protocol}//${$page.url.host}/preview/${(await invoice).$id}`;
+		await navigator.clipboard.writeText(invoiceLink);
+		toast.success('Invoice link copied to clipboard');
 	};
 
 	let togglingPaymentStatus = false;
@@ -70,7 +76,7 @@
 	{#await invoice}
 		<title>Loading...</title>
 	{:then invoice}
-		<title>{invoice.title} - Get Invoice</title>
+		<title>{invoice.contact.name} Invoice - Get Invoice</title>
 	{/await}
 </svelte:head>
 
@@ -310,15 +316,7 @@
 	<div class="flex flex-wrap items-center gap-4">
 		<Button href="/invoice/{$page.params.id}/edit">Edit Invoice</Button>
 		<Button on:click={printInvoice} variant="secondary">Download Invoice</Button>
-		<Button
-			href={`mailto:${invoice.contact.email}?subject=${invoice.title}&body=Hi ${
-				invoice.contact.name
-			},%0D%0A%0D%0AHere is the invoice for ${invoice.title.trim()}. You can download it from the link below.%0D%0A%0D%0A${
-				$page.url.protocol
-			}//${$page.url.host}/preview-invoice/${invoice.$id}`}
-			variant="secondary"
-			>Send Invoice
-		</Button>
+		<Button on:click={copyToClipboard} variant="secondary">Share Invoice</Button>
 	</div>
 {/await}
 
