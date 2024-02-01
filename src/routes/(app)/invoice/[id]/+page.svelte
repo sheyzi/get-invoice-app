@@ -387,7 +387,7 @@
 				.url.protocol}//{$page.url.host}/preview/{invoice.$id}&cc={invoice.organization.email}"
 			variant="secondary"
 		>
-			Send Invoice via Email
+			Share Invoice via Email
 		</Button>
 	</div>
 {/await}
