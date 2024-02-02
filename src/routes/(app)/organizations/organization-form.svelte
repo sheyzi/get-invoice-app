@@ -127,6 +127,9 @@
 					await goto(redirect);
 				} else if (result.status === 400) {
 					console.log(result);
+					if (result.data.form.errors['content-length']) {
+						toast.error('The file size is too large. Please upload a smaller file.');
+					}
 					errors = result.data.form.errors;
 				}
 			} finally {

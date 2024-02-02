@@ -48,6 +48,19 @@ const validateOrganizationForm = async (formData: FormData) => {
 
 export const actions: Actions = {
 	default: async ({ request }) => {
+		const length = +request.headers.get('content-length');
+
+		if (length > 1024 * 1024 * 5) {
+			return fail(400, {
+				form: {
+					errors: {
+						'content-length': ['File size must be less than 5MB']
+					},
+					isValid: false
+				}
+			});
+		}
+
 		const formData = await request.formData();
 		const form = await validateOrganizationForm(formData);
 
