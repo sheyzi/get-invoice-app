@@ -73,3 +73,16 @@ export const getActiveOrganization = async (retries = 0): Promise<Models.Documen
 		}
 	}
 };
+
+export const forgotPassword = async (email: string, redirect_url: string) => {
+	return await account.createRecovery(email, redirect_url);
+};
+
+export const resetPassword = async (
+	userId: string,
+	secret: string,
+	password: string,
+	passwordAgain: string
+) => {
+	return await account.updateRecovery(userId, secret, password, passwordAgain);
+};
