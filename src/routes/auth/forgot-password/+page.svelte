@@ -9,6 +9,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Loader2 } from 'lucide-svelte';
+	import { AppwriteException } from 'appwrite';
 
 	let loading = false;
 	let errors: any = {};
@@ -30,6 +31,13 @@
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				errors = error.flatten().fieldErrors;
+			} else if (error instanceof AppwriteException) {
+				if (error.code === 404) {
+					toast.error('No user found with this email.');
+				} else {
+					console.error(error);
+					toast.error('Something went wrong. Please try again later.');
+				}
 			} else {
 				console.error(error);
 				toast.error('Something went wrong. Please try again later.');
