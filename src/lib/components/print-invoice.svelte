@@ -217,10 +217,11 @@
 		</div>
 	</div>
 
-	{#if invoice.note}
-		<div class="flex" style="margin-top: 4rem">
+	{#if invoice.notes}
+		<div style="margin-top: 4rem">
+			<h3 style="margin-bottom: 5px; font-weight: 600;">Notes:</h3>
 			<p class="note">
-				{invoice.note}
+				{invoice.notes}
 			</p>
 		</div>
 	{/if}

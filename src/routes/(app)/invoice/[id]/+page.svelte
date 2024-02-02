@@ -357,9 +357,9 @@
 		</div>
 
 		{#if invoice.notes}
-			<div class="space-y-4">
+			<div class="mb-16 space-y-4">
 				<h3 class="font-semibold">NOTES:</h3>
-				<p>
+				<p class="text-sm text-muted-foreground">
 					{invoice.notes}
 				</p>
 			</div>

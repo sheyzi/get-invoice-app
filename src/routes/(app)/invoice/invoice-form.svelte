@@ -1065,6 +1065,7 @@
 					id="notes"
 					placeholder="Notes"
 					rows={5}
+					bind:value={formData.notes}
 				/>
 			</div>
 
