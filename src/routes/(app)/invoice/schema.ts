@@ -82,6 +82,6 @@ export const itemSchema = z.object({
 	name: z.string().min(1, { message: 'Name is required' }),
 	description: z.string().optional(),
 	quantity: z.number().int().min(1, { message: 'Quantity must be at least 1' }),
-	unit_price: z.number().int().positive({ message: 'Unit price must be positive' }),
+	unit_price: z.number().min(0, { message: 'Unit price cannot be negative' }),
 	is_taxable: z.boolean()
 });

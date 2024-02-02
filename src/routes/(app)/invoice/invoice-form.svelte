@@ -302,16 +302,6 @@
 	};
 	let itemErrors: any = {};
 
-	$: focusedItem.unit_price = isNaN(Number(focusedItem.unit_price))
-		? 0
-		: Number(focusedItem.unit_price);
-
-	$: focusedItem.quantity = isNaN(Number(focusedItem.quantity))
-		? 1
-		: focusedItem.quantity < 1
-			? 1
-			: Number(focusedItem.quantity);
-
 	const openItemModal = () => {
 		itemModalOpen = true;
 	};
@@ -320,11 +310,21 @@
 		itemModalOpen = false;
 	};
 
+	const getItemData = () => {
+		return {
+			...focusedItem,
+			quantity: isNaN(Number(focusedItem.quantity)) ? 1 : Number(focusedItem.quantity),
+			unit_price: isNaN(Number(focusedItem.unit_price)) ? 0 : Number(focusedItem.unit_price)
+		};
+	};
+
 	const addItem = () => {
 		itemErrors = {};
 
 		try {
-			itemSchema.parse(focusedItem);
+			let data = getItemData();
+
+			itemSchema.parse(data);
 
 			formData.items = [...formData.items, focusedItem];
 			focusedItem = {
@@ -355,7 +355,8 @@
 		itemErrors = {};
 
 		try {
-			itemSchema.parse(focusedItem);
+			let data = getItemData();
+			itemSchema.parse(data);
 
 			formData.items[itemEditIndex] = focusedItem;
 
