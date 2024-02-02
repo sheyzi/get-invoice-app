@@ -2,7 +2,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Loader } from '$lib/components/ui/loader';
-	import { User, Building, LogOut, Contact2, ScrollText, MessageCircle } from 'lucide-svelte';
+	import { User, Building, LogOut, Contact2, ScrollText, MessageCircle, Menu } from 'lucide-svelte';
 	import { currentUser } from '$lib/stores/user';
 	import { account } from '$lib/appwrite';
 	import { ThemeSwitcher } from '$lib/components/ui/theme-switcher';
@@ -39,21 +39,8 @@
 			<div class="ml-5">
 				<DropdownMenu.Root>
 					<DropdownMenu.Trigger asChild let:builder>
-						<Button builders={[builder]} size="icon-no-padding" class="rounded-full">
-							<!-- Their initials -->
-							<span class="font-semibold">
-								{#if $currentUser}
-									{#if $currentUser.name}
-										{#each $currentUser.name.split(' ') as name}
-											{name[0]}
-										{/each}
-									{:else}
-										{#each $currentUser.email.split('@') as name}
-											{name[0]}
-										{/each}
-									{/if}
-								{/if}
-							</span>
+						<Button builders={[builder]} size="icon" variant="ghost">
+							<Menu class="h-6 w-6" />
 						</Button>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content class="w-56">
