@@ -4,3 +4,4 @@ export * from './invoice';
 export * from './organizations';
 export * from './contacts';
 export * from './appwrite';
+export * from './feedback';

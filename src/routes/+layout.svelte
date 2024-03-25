@@ -28,7 +28,7 @@
 	});
 </script>
 
-<Toaster />
+<Toaster richColors />
 <ModeWatcher />
 
 {#if !!$navigating}
